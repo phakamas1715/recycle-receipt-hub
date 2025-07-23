@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, FileText, Settings, Building2 } from "lucide-react";
+import { Recycle, FileText, Settings, Building2, BarChart3, Database } from "lucide-react";
 import PurchaseForm from "@/components/PurchaseForm";
 import TransactionHistory from "@/components/TransactionHistory";
 import SystemSettings from "@/components/SystemSettings";
+import ConfigSystem from "@/components/ConfigSystem";
+import Dashboard from "@/components/Dashboard";
 
 const RecycleSystem = () => {
   const [activeTab, setActiveTab] = useState("purchase");
@@ -40,7 +42,7 @@ const RecycleSystem = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="purchase" className="flex items-center gap-2">
               <Recycle className="h-4 w-4" />
               บันทึกรับซื้อ
@@ -48,6 +50,14 @@ const RecycleSystem = () => {
             <TabsTrigger value="history" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               รายการทั้งหมด
+            </TabsTrigger>
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              แดชบอร์ด
+            </TabsTrigger>
+            <TabsTrigger value="config" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              เชื่อมต่อ API
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -87,6 +97,14 @@ const RecycleSystem = () => {
                 <TransactionHistory />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <Dashboard />
+          </TabsContent>
+
+          <TabsContent value="config" className="space-y-6">
+            <ConfigSystem />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
