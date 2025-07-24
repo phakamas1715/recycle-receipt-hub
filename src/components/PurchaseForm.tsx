@@ -29,6 +29,18 @@ interface Person {
   phone?: string;
 }
 
+interface TransactionData {
+  receiptNumber: string;
+  date: string;
+  time: string;
+  sellerType: "department" | "person";
+  seller: string;
+  wasteType: string;
+  weight: number;
+  pricePerUnit: number;
+  totalAmount: number;
+}
+
 const PurchaseForm = () => {
   const [sellerType, setSellerType] = useState<"department" | "person">("department");
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -36,7 +48,7 @@ const PurchaseForm = () => {
   const [selectedWasteType, setSelectedWasteType] = useState("");
   const [weight, setWeight] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
-  const [lastTransaction, setLastTransaction] = useState<any>(null);
+  const [lastTransaction, setLastTransaction] = useState<TransactionData | null>(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [departmentSearch, setDepartmentSearch] = useState("");
   const [wasteTypeSearch, setWasteTypeSearch] = useState("");
@@ -341,17 +353,17 @@ const PurchaseForm = () => {
 
     const receiptNumber = `RCP-${String(Date.now()).slice(-5).padStart(5, '0')}`;
     
-    const transactionData = {
+    const transactionData: TransactionData = {
       receiptNumber,
       date: new Date().toLocaleDateString('th-TH'),
       time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
       sellerType,
       seller: sellerType === "department" 
-        ? departments.find(d => d.id === selectedDepartment)?.name 
-        : persons.find(p => p.id === selectedPerson)?.name,
-      wasteType: selectedWaste?.name,
+        ? departments.find(d => d.id === selectedDepartment)?.name || ""
+        : persons.find(p => p.id === selectedPerson)?.name || "",
+      wasteType: selectedWaste?.name || "",
       weight: parseFloat(weight),
-      pricePerUnit: selectedWaste?.price,
+      pricePerUnit: selectedWaste?.price || 0,
       totalAmount,
     };
 
