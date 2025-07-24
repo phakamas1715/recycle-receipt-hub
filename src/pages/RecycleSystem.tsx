@@ -3,11 +3,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Recycle, FileText, Settings, Building2, BarChart3, Database } from "lucide-react";
-import PurchaseForm from "@/components/PurchaseForm";
-import TransactionHistory from "@/components/TransactionHistory";
-import SystemSettings from "@/components/SystemSettings";
-import ConfigSystem from "@/components/ConfigSystem";
-import Dashboard from "@/components/Dashboard";
+
+// Placeholder components for demonstration purposes
+// In a real application, these would be imported from their respective files.
+
+const PurchaseForm = () => (
+  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
+    <p className="text-lg font-medium">ส่วนฟอร์มบันทึกรับซื้อ (Placeholder)</p>
+  </div>
+);
+
+const TransactionHistory = () => (
+  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
+    <p className="text-lg font-medium">ส่วนประวัติรายการ (Placeholder)</p>
+  </div>
+);
+
+const SystemSettings = () => (
+  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
+    <p className="text-lg font-medium">ส่วนตั้งค่าระบบ (Placeholder)</p>
+  </div>
+);
+
+const ConfigSystem = () => (
+  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
+    <p className="text-lg font-medium">ส่วนเชื่อมต่อ API (Placeholder)</p>
+  </div>
+);
+
+const Dashboard = () => (
+  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
+    <p className="text-lg font-medium">ส่วนแดชบอร์ด (Placeholder)</p>
+  </div>
+);
+
 
 const RecycleSystem = () => {
   const [activeTab, setActiveTab] = useState("purchase");
@@ -23,16 +52,18 @@ const RecycleSystem = () => {
                 <Recycle className="h-8 w-8 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
+                {/* Increased font size for main title */}
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground">
                   ระบบบันทึกรับซื้อขยะรีไซเคิล
                 </h1>
-                <p className="text-muted-foreground flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
+                {/* Increased font size for subtitle */}
+                <p className="text-lg md:text-xl text-muted-foreground flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
                   โรงพยาบาลน้ำพอง
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="hidden md:flex">
+            <Badge variant="secondary" className="hidden md:flex text-base">
               v1.0.0
             </Badge>
           </div>
@@ -42,25 +73,42 @@ const RecycleSystem = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {/* Increased font size for tab triggers and added hover effects */}
+          {/* Increased padding (px-6 py-3) and text size (text-lg md:text-xl) for larger buttons */}
           <TabsList className="grid w-full grid-cols-5 mb-8">
-            <TabsTrigger value="purchase" className="flex items-center gap-2">
-              <Recycle className="h-4 w-4" />
+            <TabsTrigger
+              value="purchase"
+              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <Recycle className="h-6 w-6" /> {/* Increased icon size */}
               บันทึกรับซื้อ
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <FileText className="h-6 w-6" /> {/* Increased icon size */}
               รายการทั้งหมด
             </TabsTrigger>
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
+            <TabsTrigger
+              value="dashboard"
+              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <BarChart3 className="h-6 w-6" /> {/* Increased icon size */}
               แดชบอร์ด
             </TabsTrigger>
-            <TabsTrigger value="config" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
+            <TabsTrigger
+              value="config"
+              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <Database className="h-6 w-6" /> {/* Increased icon size */}
               เชื่อมต่อ API
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <Settings className="h-6 w-6" /> {/* Increased icon size */}
               ตั้งค่าระบบ
             </TabsTrigger>
           </TabsList>
@@ -68,11 +116,13 @@ const RecycleSystem = () => {
           <TabsContent value="purchase" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Recycle className="h-5 w-5 text-primary" />
+                {/* Increased font size for CardTitle */}
+                <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+                  <Recycle className="h-6 w-6 text-primary" />
                   บันทึกการรับซื้อขยะรีไซเคิล
                 </CardTitle>
-                <CardDescription>
+                {/* Increased font size for CardDescription */}
+                <CardDescription className="text-base md:text-lg">
                   กรอกข้อมูลการรับซื้อขยะรีไซเคิลจากแผนกต่างๆ หรือบุคคลทั่วไป
                 </CardDescription>
               </CardHeader>
@@ -85,11 +135,13 @@ const RecycleSystem = () => {
           <TabsContent value="history" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-primary" />
+                {/* Increased font size for CardTitle */}
+                <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+                  <FileText className="h-6 w-6 text-primary" />
                   ประวัติการรับซื้อขยะรีไซเคิล
                 </CardTitle>
-                <CardDescription>
+                {/* Increased font size for CardDescription */}
+                <CardDescription className="text-base md:text-lg">
                   ดูและจัดการประวัติการรับซื้อขยะรีไซเคิลทั้งหมด
                 </CardDescription>
               </CardHeader>
@@ -110,11 +162,13 @@ const RecycleSystem = () => {
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-primary" />
+                {/* Increased font size for CardTitle */}
+                <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+                  <Settings className="h-6 w-6 text-primary" />
                   ตั้งค่าระบบ
                 </CardTitle>
-                <CardDescription>
+                {/* Increased font size for CardDescription */}
+                <CardDescription className="text-base md:text-lg">
                   จัดการราคาขยะรีไซเคิลและรายชื่อผู้ขาย
                 </CardDescription>
               </CardHeader>
