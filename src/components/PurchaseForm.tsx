@@ -104,8 +104,8 @@ const PurchaseForm = () => {
   ];
 
   const persons: Person[] = [
-    { id: "1", name: "นายสมชาย ใจดี", phone: "081-234-5678" },
-    { id: "2", name: "นางสาวสมหญิง รักดี", phone: "082-345-6789" },
+    { id: "1", name: "นางสาวผกามาศ วิรัณวัฒรา", phone: "095-972-8258" },
+    { id: "2", name: "นายธิติ บุดดาน้อย", phone: "082-345-6789" },
   ];
 
   const filteredDepartments = departments.filter(dept => 
