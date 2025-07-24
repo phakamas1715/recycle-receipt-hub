@@ -14,13 +14,13 @@ const RecycleSystem = () => {
   const [activeTab, setActiveTab] = useState("purchase");
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <header className="bg-card border-b shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-primary rounded-lg">
+              <div className="p-2 bg-gradient-to-br from-primary to-accent rounded-lg">
                 <Recycle className="h-8 w-8 text-primary-foreground" />
               </div>
               <div>

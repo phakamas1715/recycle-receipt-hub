@@ -169,7 +169,7 @@ const SystemSettings = () => {
                     setEditingWaste(null);
                     setShowWasteDialog(true);
                   }}
-                  className="bg-gradient-primary"
+                  className="bg-gradient-to-r from-primary to-accent text-primary-foreground"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   เพิ่มประเภทขยะ
@@ -297,7 +297,7 @@ const SystemSettings = () => {
                     setEditingPerson(null);
                     setShowPersonDialog(true);
                   }}
-                  className="bg-gradient-primary"
+                  className="bg-gradient-to-r from-primary to-accent text-primary-foreground"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   เพิ่มบุคคล
