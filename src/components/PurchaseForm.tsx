@@ -10,6 +10,7 @@ import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircl
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReceiptView from "./ReceiptView";
+import { dataStorage, Transaction } from "@/lib/dataStorage";
 
 interface WasteType {
   id: string;
@@ -29,17 +30,6 @@ interface Person {
   phone?: string;
 }
 
-interface TransactionData {
-  receiptNumber: string;
-  date: string;
-  time: string;
-  sellerType: "department" | "person";
-  seller: string;
-  wasteType: string;
-  weight: number;
-  pricePerUnit: number;
-  totalAmount: number;
-}
 
 const PurchaseForm = () => {
   const [sellerType, setSellerType] = useState<"department" | "person">("department");
@@ -48,7 +38,7 @@ const PurchaseForm = () => {
   const [selectedWasteType, setSelectedWasteType] = useState("");
   const [weight, setWeight] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
-  const [lastTransaction, setLastTransaction] = useState<TransactionData | null>(null);
+  const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [departmentSearch, setDepartmentSearch] = useState("");
   const [wasteTypeSearch, setWasteTypeSearch] = useState("");
@@ -353,7 +343,7 @@ const PurchaseForm = () => {
 
     const receiptNumber = `RCP-${String(Date.now()).slice(-5).padStart(5, '0')}`;
     
-    const transactionData: TransactionData = {
+    const transactionToSave = {
       receiptNumber,
       date: new Date().toLocaleDateString('th-TH'),
       time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
@@ -367,14 +357,15 @@ const PurchaseForm = () => {
       totalAmount,
     };
 
-    console.log("Transaction Data:", transactionData);
+    // Save to storage
+    const savedTransaction = dataStorage.saveTransaction(transactionToSave);
     
-    setLastTransaction(transactionData);
+    setLastTransaction(savedTransaction);
     setShowReceipt(true);
     
     toast({
       title: "บันทึกข้อมูลสำเร็จ",
-      description: `เลขที่ใบเสร็จ: ${receiptNumber}`,
+      description: `เลขที่ใบเสร็จ: ${receiptNumber} | บันทึกลงฐานข้อมูลแล้ว`,
     });
 
     // Reset form

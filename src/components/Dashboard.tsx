@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { BarChart3, TrendingUp, DollarSign, Recycle, Calendar, Download, RefreshCw } from "lucide-react";
+import { dataStorage } from "@/lib/dataStorage";
+import { ExportUtils } from "@/lib/exportUtils";
 
 interface DashboardData {
   totalTransactions: number;
@@ -28,50 +30,90 @@ const Dashboard = () => {
     dailyStats: []
   });
 
-  // Mock data - ในระบบจริงจะดึงจาก Google Sheets
+  // Load real data from storage
   useEffect(() => {
     const loadDashboardData = () => {
-      const mockData: DashboardData = {
-        totalTransactions: 156,
-        totalAmount: 45280.50,
-        totalWeight: 1250.75,
-        topDepartments: [
-          { name: "OPD - งานการพยาบาลผู้ป่วยนอก", amount: 8540, weight: 245.5, transactions: 24 },
-          { name: "WARD1 - งานการพยาบาลผู้ป่วยใน ชาย", amount: 7320, weight: 198.2, transactions: 18 },
-          { name: "ER - งานการพยาบาลผู้ป่วยฉุกเฉิน", amount: 6890, weight: 178.9, transactions: 16 },
-          { name: "OR - งานการพยาบาลผู้ป่วยผ่าตัด", amount: 5430, weight: 156.3, transactions: 14 },
-          { name: "MNU - งานโภชนศาสตร์", amount: 4680, weight: 145.8, transactions: 12 }
-        ],
-        wasteTypeDistribution: [
-          { name: "กระดาษ", value: 450.2, amount: 15757 },
-          { name: "พลาสติก PET", value: 320.5, amount: 3846 },
-          { name: "กระป๋องอลูมิเนียม", value: 85.3, amount: 3838.5 },
-          { name: "แก้ว", value: 240.8, amount: 361.2 },
-          { name: "เหล็ก", value: 153.9, amount: 1231.2 }
-        ],
-        monthlyTrend: [
-          { month: "ม.ค.", amount: 38500, weight: 1050, transactions: 42 },
-          { month: "ก.พ.", amount: 42300, weight: 1180, transactions: 48 },
-          { month: "มี.ค.", amount: 45280, weight: 1250, transactions: 52 },
-          { month: "เม.ย.", amount: 48900, weight: 1320, transactions: 58 },
-          { month: "พ.ค.", amount: 44200, weight: 1200, transactions: 54 },
-          { month: "มิ.ย.", amount: 47800, weight: 1280, transactions: 56 }
-        ],
-        dailyStats: [
-          { date: "20/03", amount: 2340, transactions: 8 },
-          { date: "22/03", amount: 1890, transactions: 6 },
-          { date: "25/03", amount: 3450, transactions: 12 },
-          { date: "27/03", amount: 2780, transactions: 9 },
-          { date: "29/03", amount: 4120, transactions: 14 },
-          { date: "01/04", amount: 3680, transactions: 11 },
-          { date: "03/04", amount: 2950, transactions: 10 }
-        ]
+      const stats = dataStorage.getStatistics();
+      const transactions = dataStorage.getTransactions();
+      
+      // Generate real dashboard data
+      const realData: DashboardData = {
+        totalTransactions: stats.totalTransactions,
+        totalAmount: stats.totalAmount,
+        totalWeight: stats.totalWeight,
+        topDepartments: Object.entries(stats.sellerStats)
+          .sort(([,a], [,b]) => b.amount - a.amount)
+          .slice(0, 5)
+          .map(([name, data]) => ({
+            name: name.length > 30 ? name.substring(0, 30) + '...' : name,
+            amount: data.amount,
+            weight: data.weight,
+            transactions: data.count
+          })),
+        wasteTypeDistribution: Object.entries(stats.wasteTypeStats).map(([name, data]) => ({
+          name,
+          value: data.weight,
+          amount: data.amount
+        })),
+        monthlyTrend: generateMonthlyTrend(transactions),
+        dailyStats: generateDailyStats(transactions)
       };
-      setDashboardData(mockData);
+      setDashboardData(realData);
     };
 
     loadDashboardData();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(loadDashboardData, 30000);
+    return () => clearInterval(interval);
   }, [selectedPeriod]);
+
+  // Helper functions
+  const generateMonthlyTrend = (transactions: any[]) => {
+    const monthlyData: { [key: string]: { amount: number; weight: number; transactions: number } } = {};
+    
+    transactions.forEach(t => {
+      const date = new Date(t.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('th-TH', { month: 'short' });
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { amount: 0, weight: 0, transactions: 0 };
+      }
+      monthlyData[monthKey].amount += t.totalAmount;
+      monthlyData[monthKey].weight += t.weight;
+      monthlyData[monthKey].transactions++;
+    });
+
+    return Object.entries(monthlyData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([key, data]) => ({
+        month: new Date(key + '-01').toLocaleDateString('th-TH', { month: 'short' }),
+        ...data
+      }));
+  };
+
+  const generateDailyStats = (transactions: any[]) => {
+    const dailyData: { [key: string]: { amount: number; transactions: number } } = {};
+    
+    transactions.forEach(t => {
+      const dateKey = t.date;
+      if (!dailyData[dateKey]) {
+        dailyData[dateKey] = { amount: 0, transactions: 0 };
+      }
+      dailyData[dateKey].amount += t.totalAmount;
+      dailyData[dateKey].transactions++;
+    });
+
+    return Object.entries(dailyData)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .slice(-7)
+      .map(([date, data]) => ({
+        date: new Date(date).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' }),
+        ...data
+      }));
+  };
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))', 'hsl(var(--destructive))'];
 
