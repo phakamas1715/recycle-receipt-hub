@@ -1,236 +1,351 @@
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, FileText, Settings, Building2, BarChart3, Database, Sparkles, Leaf } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { BarChart3, TrendingUp, DollarSign, Recycle, Calendar, Download, RefreshCw } from "lucide-react";
 
-// Enhanced placeholder components with beautiful designs
-const PurchaseForm = () => (
-  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-8 border border-emerald-200 shadow-lg">
-    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-200/30 to-transparent rounded-full -mr-16 -mt-16"></div>
-    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full -ml-12 -mb-12"></div>
-    <div className="relative z-10 flex flex-col items-center justify-center h-48 text-center">
-      <div className="mb-4 p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full">
-        <Recycle className="h-8 w-8 text-white animate-spin" style={{animationDuration: '3s'}} />
-      </div>
-      <p className="text-xl font-semibold text-emerald-800 mb-2">ส่วนฟอร์มบันทึกรับซื้อ</p>
-      <p className="text-emerald-600">กำลังพัฒนาระบบ...</p>
-    </div>
-  </div>
-);
+interface DashboardData {
+  totalTransactions: number;
+  totalAmount: number;
+  totalWeight: number;
+  topDepartments: Array<{ name: string; amount: number; weight: number; transactions: number }>;
+  wasteTypeDistribution: Array<{ name: string; value: number; amount: number }>;
+  monthlyTrend: Array<{ month: string; amount: number; weight: number; transactions: number }>;
+  dailyStats: Array<{ date: string; amount: number; transactions: number }>;
+}
 
-const TransactionHistory = () => (
-  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8 border border-blue-200 shadow-lg">
-    <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-200/20 to-transparent rounded-full -mr-20 -mt-20"></div>
-    <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-purple-200/20 to-transparent rounded-full -ml-14 -mb-14"></div>
-    <div className="relative z-10 flex flex-col items-center justify-center h-48 text-center">
-      <div className="mb-4 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
-        <FileText className="h-8 w-8 text-white animate-pulse" />
-      </div>
-      <p className="text-xl font-semibold text-blue-800 mb-2">ส่วนประวัติรายการ</p>
-      <p className="text-blue-600">กำลังพัฒนาระบบ...</p>
-    </div>
-  </div>
-);
+const Dashboard = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState("30");
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
+    totalTransactions: 0,
+    totalAmount: 0,
+    totalWeight: 0,
+    topDepartments: [],
+    wasteTypeDistribution: [],
+    monthlyTrend: [],
+    dailyStats: []
+  });
 
-const SystemSettings = () => (
-  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 p-8 border border-orange-200 shadow-lg">
-    <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-orange-200/25 to-transparent rounded-full -mr-18 -mt-18"></div>
-    <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-pink-200/25 to-transparent rounded-full -ml-16 -mb-16"></div>
-    <div className="relative z-10 flex flex-col items-center justify-center h-48 text-center">
-      <div className="mb-4 p-4 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full">
-        <Settings className="h-8 w-8 text-white animate-spin" style={{animationDuration: '4s'}} />
-      </div>
-      <p className="text-xl font-semibold text-orange-800 mb-2">ส่วนตั้งค่าระบบ</p>
-      <p className="text-orange-600">กำลังพัฒนาระบบ...</p>
-    </div>
-  </div>
-);
+  // Mock data - ในระบบจริงจะดึงจาก Google Sheets
+  useEffect(() => {
+    const loadDashboardData = () => {
+      const mockData: DashboardData = {
+        totalTransactions: 156,
+        totalAmount: 45280.50,
+        totalWeight: 1250.75,
+        topDepartments: [
+          { name: "OPD - งานการพยาบาลผู้ป่วยนอก", amount: 8540, weight: 245.5, transactions: 24 },
+          { name: "WARD1 - งานการพยาบาลผู้ป่วยใน ชาย", amount: 7320, weight: 198.2, transactions: 18 },
+          { name: "ER - งานการพยาบาลผู้ป่วยฉุกเฉิน", amount: 6890, weight: 178.9, transactions: 16 },
+          { name: "OR - งานการพยาบาลผู้ป่วยผ่าตัด", amount: 5430, weight: 156.3, transactions: 14 },
+          { name: "MNU - งานโภชนศาสตร์", amount: 4680, weight: 145.8, transactions: 12 }
+        ],
+        wasteTypeDistribution: [
+          { name: "กระดาษ", value: 450.2, amount: 15757 },
+          { name: "พลาสติก PET", value: 320.5, amount: 3846 },
+          { name: "กระป๋องอลูมิเนียม", value: 85.3, amount: 3838.5 },
+          { name: "แก้ว", value: 240.8, amount: 361.2 },
+          { name: "เหล็ก", value: 153.9, amount: 1231.2 }
+        ],
+        monthlyTrend: [
+          { month: "ม.ค.", amount: 38500, weight: 1050, transactions: 42 },
+          { month: "ก.พ.", amount: 42300, weight: 1180, transactions: 48 },
+          { month: "มี.ค.", amount: 45280, weight: 1250, transactions: 52 },
+          { month: "เม.ย.", amount: 48900, weight: 1320, transactions: 58 },
+          { month: "พ.ค.", amount: 44200, weight: 1200, transactions: 54 },
+          { month: "มิ.ย.", amount: 47800, weight: 1280, transactions: 56 }
+        ],
+        dailyStats: [
+          { date: "20/03", amount: 2340, transactions: 8 },
+          { date: "22/03", amount: 1890, transactions: 6 },
+          { date: "25/03", amount: 3450, transactions: 12 },
+          { date: "27/03", amount: 2780, transactions: 9 },
+          { date: "29/03", amount: 4120, transactions: 14 },
+          { date: "01/04", amount: 3680, transactions: 11 },
+          { date: "03/04", amount: 2950, transactions: 10 }
+        ]
+      };
+      setDashboardData(mockData);
+    };
 
-const ConfigSystem = () => (
-  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 p-8 border border-violet-200 shadow-lg">
-    <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-violet-200/20 to-transparent rounded-full -mr-22 -mt-22"></div>
-    <div className="absolute bottom-0 left-0 w-36 h-36 bg-gradient-to-tr from-fuchsia-200/20 to-transparent rounded-full -ml-18 -mb-18"></div>
-    <div className="relative z-10 flex flex-col items-center justify-center h-48 text-center">
-      <div className="mb-4 p-4 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full">
-        <Database className="h-8 w-8 text-white animate-bounce" />
-      </div>
-      <p className="text-xl font-semibold text-violet-800 mb-2">ส่วนเชื่อมต่อ API</p>
-      <p className="text-violet-600">กำลังพัฒนาระบบ...</p>
-    </div>
-  </div>
-);
+    loadDashboardData();
+  }, [selectedPeriod]);
 
-const Dashboard = () => (
-  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-8 border border-yellow-200 shadow-lg">
-    <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-yellow-200/15 to-transparent rounded-full -mr-24 -mt-24"></div>
-    <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-orange-200/15 to-transparent rounded-full -ml-20 -mb-20"></div>
-    <div className="relative z-10 flex flex-col items-center justify-center h-48 text-center">
-      <div className="mb-4 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full">
-        <BarChart3 className="h-8 w-8 text-white animate-pulse" />
-      </div>
-      <p className="text-xl font-semibold text-yellow-800 mb-2">ส่วนแดชบอร์ด</p>
-      <p className="text-yellow-600">กำลังพัฒนาระบบ...</p>
-    </div>
-  </div>
-);
+  const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))', 'hsl(var(--destructive))'];
 
-const RecycleSystem = () => {
-  const [activeTab, setActiveTab] = useState("purchase");
+  const generateReport = () => {
+    // ในระบบจริงจะสร้าง PDF หรือ Excel report
+    const reportData = {
+      period: `${selectedPeriod} วันที่ผ่านมา`,
+      generated: new Date().toLocaleDateString('th-TH'),
+      summary: dashboardData
+    };
+    
+    console.log("Generating report:", reportData);
+    // Here would be the actual report generation logic
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-emerald-300 rounded-full animate-ping opacity-60"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-pulse opacity-70"></div>
-        <div className="absolute bottom-32 left-32 w-3 h-3 bg-purple-300 rounded-full animate-bounce opacity-50"></div>
-        <div className="absolute bottom-20 right-40 w-2 h-2 bg-pink-300 rounded-full animate-ping opacity-60"></div>
-        <div className="absolute top-60 left-1/3 w-1 h-1 bg-yellow-400 rounded-full animate-pulse opacity-80"></div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4"> {/* Added flex-wrap and gap */}
+        <div className="flex items-center gap-3">
+          <BarChart3 className="h-7 w-7 text-primary" /> {/* Increased icon size */}
+          <h2 className="text-2xl md:text-3xl font-semibold">แดชบอร์ดและรายงาน</h2> {/* Increased font size */}
+        </div>
+        <div className="flex items-center gap-3 flex-wrap justify-end"> {/* Added flex-wrap and justify-end */}
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-48 text-base md:text-lg"> {/* Increased width and font size */}
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">7 วันที่ผ่านมา</SelectItem>
+              <SelectItem value="30">30 วันที่ผ่านมา</SelectItem>
+              <SelectItem value="90">90 วันที่ผ่านมา</SelectItem>
+              <SelectItem value="365">1 ปีที่ผ่านมา</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="lg" // Increased button size
+            className="text-base md:text-lg px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-lg" // Increased font size and added effects
+          >
+            <RefreshCw className="h-5 w-5 mr-2" /> {/* Increased icon size */}
+            อัปเดต
+          </Button>
+          <Button
+            size="lg" // Increased button size
+            onClick={generateReport}
+            className="text-base md:text-lg px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-lg" // Increased font size and added effects
+          >
+            <Download className="h-5 w-5 mr-2" /> {/* Increased icon size */}
+            ส่งออกรายงาน
+          </Button>
+        </div>
       </div>
 
-      {/* Header with enhanced design */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-xl relative z-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-blue-500/5 to-purple-500/5"></div>
-        <div className="container mx-auto px-4 py-8 relative">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="relative p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
-                <Recycle className="h-10 w-10 text-white" />
-                <div className="absolute -top-1 -right-1">
-                  <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"> {/* Adjusted responsive grid */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base md:text-lg font-medium">รายการทั้งหมด</CardTitle> {/* Increased font size */}
+            <Calendar className="h-5 w-5 text-muted-foreground" /> {/* Increased icon size */}
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl md:text-4xl font-bold">{dashboardData.totalTransactions}</div> {/* Increased font size */}
+            <p className="text-sm md:text-base text-muted-foreground">รายการรับซื้อ</p> {/* Increased font size */}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base md:text-lg font-medium">ยอดรวมทั้งหมด</CardTitle> {/* Increased font size */}
+            <DollarSign className="h-5 w-5 text-muted-foreground" /> {/* Increased icon size */}
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl md:text-4xl font-bold">{dashboardData.totalAmount.toLocaleString()}</div> {/* Increased font size */}
+            <p className="text-sm md:text-base text-muted-foreground">บาท</p> {/* Increased font size */}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base md:text-lg font-medium">น้ำหนักรวม</CardTitle> {/* Increased font size */}
+            <Recycle className="h-5 w-5 text-muted-foreground" /> {/* Increased icon size */}
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl md:text-4xl font-bold">{dashboardData.totalWeight.toLocaleString()}</div> {/* Increased font size */}
+            <p className="text-sm md:text-base text-muted-foreground">กิโลกรัม</p> {/* Increased font size */}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base md:text-lg font-medium">ค่าเฉลี่ยต่อรายการ</CardTitle> {/* Increased font size */}
+            <TrendingUp className="h-5 w-5 text-muted-foreground" /> {/* Increased icon size */}
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl md:text-4xl font-bold"> {/* Increased font size */}
+              {dashboardData.totalTransactions > 0 
+                ? (dashboardData.totalAmount / dashboardData.totalTransactions).toFixed(0)
+                : "0"
+              }
+            </div>
+            <p className="text-sm md:text-base text-muted-foreground">บาท/รายการ</p> {/* Increased font size */}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Departments */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl md:text-2xl">แผนกที่มียอดสูงสุด</CardTitle> {/* Increased font size */}
+            <CardDescription className="text-base md:text-lg">5 แผนกที่มีปริมาณการขายมากที่สุด</CardDescription> {/* Increased font size */}
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dashboardData.topDepartments}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={14} /> {/* Increased height and font size */}
+                <YAxis fontSize={14} /> {/* Increased font size */}
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'amount' ? `${value.toLocaleString()} บาท` : `${value} กก.`,
+                    name === 'amount' ? 'ยอดรวม' : 'น้ำหนัก'
+                  ]}
+                  labelStyle={{ fontSize: '14px' }} // Increased tooltip font size
+                  itemStyle={{ fontSize: '14px' }} // Increased tooltip item font size
+                />
+                <Bar dataKey="amount" fill="hsl(var(--primary))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Waste Type Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl md:text-2xl">การกระจายตัวของประเภทขยะ</CardTitle> {/* Increased font size */}
+            <CardDescription className="text-base md:text-lg">สัดส่วนขยะแต่ละประเภท</CardDescription> {/* Increased font size */}
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={dashboardData.wasteTypeDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100} // Increased outerRadius for larger pie chart
+                  fill="#8884d8"
+                  dataKey="value"
+                  style={{ fontSize: '14px' }} // Increased label font size
+                >
+                  {dashboardData.wasteTypeDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`${value} กก.`, 'น้ำหนัก']} />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Trend Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Monthly Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl md:text-2xl">แนวโน้มรายเดือน</CardTitle> {/* Increased font size */}
+            <CardDescription className="text-base md:text-lg">ยอดรวมและน้ำหนักในแต่ละเดือน</CardDescription> {/* Increased font size */}
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dashboardData.monthlyTrend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" fontSize={14} /> {/* Increased font size */}
+                <YAxis fontSize={14} /> {/* Increased font size */}
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'amount' ? `${value.toLocaleString()} บาท` : `${value} กก.`,
+                    name === 'amount' ? 'ยอดรวม' : 'น้ำหนัก'
+                  ]}
+                  labelStyle={{ fontSize: '14px' }} // Increased tooltip font size
+                  itemStyle={{ fontSize: '14px' }} // Increased tooltip item font size
+                />
+                <Line type="monotone" dataKey="amount" stroke="hsl(var(--primary))" strokeWidth={2} />
+                <Line type="monotone" dataKey="weight" stroke="hsl(var(--secondary))" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Daily Stats */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl md:text-2xl">สถิติรายวัน</CardTitle> {/* Increased font size */}
+            <CardDescription className="text-base md:text-lg">จำนวนรายการในแต่ละวัน</CardDescription> {/* Increased font size */}
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dashboardData.dailyStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" fontSize={14} /> {/* Increased font size */}
+                <YAxis fontSize={14} /> {/* Increased font size */}
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'transactions' ? `${value} รายการ` : `${value.toLocaleString()} บาท`,
+                    name === 'transactions' ? 'จำนวนรายการ' : 'ยอดรวม'
+                  ]}
+                  labelStyle={{ fontSize: '14px' }} // Increased tooltip font size
+                  itemStyle={{ fontSize: '14px' }} // Increased tooltip item font size
+                />
+                <Bar dataKey="transactions" fill="hsl(var(--accent))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl md:text-2xl">สรุปข้อมูลสำคัญ</CardTitle> {/* Increased font size */}
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Increased gap for better spacing */}
+            <div className="space-y-3"> {/* Increased space-y */}
+              <h4 className="font-medium text-lg md:text-xl">ประเภทขยะที่ได้รับนิยม</h4> {/* Increased font size */}
+              <div className="space-y-2"> {/* Increased space-y */}
+                {dashboardData.wasteTypeDistribution.slice(0, 3).map((item, index) => (
+                  <div key={index} className="flex justify-between text-base md:text-lg"> {/* Increased font size */}
+                    <span>{item.name}</span>
+                    <Badge variant="secondary" className="text-base md:text-lg">{item.value} กก.</Badge> {/* Increased badge font size */}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-3"> {/* Increased space-y */}
+              <h4 className="font-medium text-lg md:text-xl">แผนกที่มีส่วนร่วมสูง</h4> {/* Increased font size */}
+              <div className="space-y-2"> {/* Increased space-y */}
+                {dashboardData.topDepartments.slice(0, 3).map((dept, index) => (
+                  <div key={index} className="flex justify-between text-base md:text-lg"> {/* Increased font size */}
+                    <span className="truncate">{dept.name.split(' - ')[0]}</span>
+                    <Badge variant="outline" className="text-base md:text-lg">{dept.transactions} รายการ</Badge> {/* Increased badge font size */}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3"> {/* Increased space-y */}
+              <h4 className="font-medium text-lg md:text-xl">สถิติเฉลี่ย</h4> {/* Increased font size */}
+              <div className="space-y-2 text-base md:text-lg"> {/* Increased space-y and font size */}
+                <div className="flex justify-between">
+                  <span>ยอดเฉลี่ยต่อวัน:</span>
+                  <span>{(dashboardData.totalAmount / 30).toFixed(0)} บาท</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>น้ำหนักเฉลี่ยต่อรายการ:</span>
+                  <span>{(dashboardData.totalWeight / dashboardData.totalTransactions).toFixed(1)} กก.</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>รายการเฉลี่ยต่อวัน:</span>
+                  <span>{(dashboardData.totalTransactions / 30).toFixed(0)} รายการ</span>
                 </div>
               </div>
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  ระบบบันทึกรับซื้อขยะรีไซเคิล
-                </h1>
-                <p className="text-xl md:text-2xl text-slate-600 flex items-center gap-3 mt-2">
-                  <Building2 className="h-6 w-6 text-emerald-500" />
-                  โรงพยาบาลน้ำพอง
-                  <Leaf className="h-5 w-5 text-green-500 animate-pulse" />
-                </p>
-              </div>
-            </div>
-            <div className="hidden md:flex items-center gap-3">
-              <Badge variant="secondary" className="text-lg px-4 py-2 bg-gradient-to-r from-emerald-100 to-blue-100 text-emerald-700 border-emerald-200">
-                v1.0.0
-              </Badge>
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
           </div>
-        </div>
-      </header>
-
-      {/* Main Content with enhanced styling */}
-      <main className="container mx-auto px-4 py-10 relative z-10">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-10 bg-white/60 backdrop-blur-sm p-2 rounded-2xl shadow-xl border border-white/20">
-            <TabsTrigger
-              value="purchase"
-              className="flex items-center gap-3 px-6 py-4 text-lg md:text-xl font-medium transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-xl"
-            >
-              <Recycle className="h-6 w-6" />
-              บันทึกรับซื้อ
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className="flex items-center gap-3 px-6 py-4 text-lg md:text-xl font-medium transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-xl"
-            >
-              <FileText className="h-6 w-6" />
-              รายการทั้งหมด
-            </TabsTrigger>
-            <TabsTrigger
-              value="dashboard"
-              className="flex items-center gap-3 px-6 py-4 text-lg md:text-xl font-medium transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-xl"
-            >
-              <BarChart3 className="h-6 w-6" />
-              แดชบอร์ด
-            </TabsTrigger>
-            <TabsTrigger
-              value="config"
-              className="flex items-center gap-3 px-6 py-4 text-lg md:text-xl font-medium transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-fuchsia-500 data-[state=active]:text-white data-[state=active]:shadow-xl"
-            >
-              <Database className="h-6 w-6" />
-              เชื่อมต่อ API
-            </TabsTrigger>
-            <TabsTrigger
-              value="settings"
-              className="flex items-center gap-3 px-6 py-4 text-lg md:text-xl font-medium transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-xl"
-            >
-              <Settings className="h-6 w-6" />
-              ตั้งค่าระบบ
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="purchase" className="space-y-8 animate-in fade-in-50 duration-500">
-            <Card className="bg-white/70 backdrop-blur-sm shadow-2xl border-white/30 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald/10">
-                <CardTitle className="flex items-center gap-3 text-2xl md:text-3xl font-bold text-emerald-800">
-                  <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg">
-                    <Recycle className="h-7 w-7 text-white" />
-                  </div>
-                  บันทึกการรับซื้อขยะรีไซเคิล
-                </CardTitle>
-                <CardDescription className="text-lg md:text-xl text-emerald-600">
-                  กรอกข้อมูลการรับซื้อขยะรีไซเคิลจากแผนกต่างๆ หรือบุคคลทั่วไป
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8">
-                <PurchaseForm />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="history" className="space-y-8 animate-in fade-in-50 duration-500">
-            <Card className="bg-white/70 backdrop-blur-sm shadow-2xl border-white/30 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue/10">
-                <CardTitle className="flex items-center gap-3 text-2xl md:text-3xl font-bold text-blue-800">
-                  <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg">
-                    <FileText className="h-7 w-7 text-white" />
-                  </div>
-                  ประวัติการรับซื้อขยะรีไซเคิล
-                </CardTitle>
-                <CardDescription className="text-lg md:text-xl text-blue-600">
-                  ดูและจัดการประวัติการรับซื้อขยะรีไซเคิลทั้งหมด
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8">
-                <TransactionHistory />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="dashboard" className="space-y-8 animate-in fade-in-50 duration-500">
-            <Dashboard />
-          </TabsContent>
-
-          <TabsContent value="config" className="space-y-8 animate-in fade-in-50 duration-500">
-            <ConfigSystem />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-8 animate-in fade-in-50 duration-500">
-            <Card className="bg-white/70 backdrop-blur-sm shadow-2xl border-white/30 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-orange-50 to-pink-50 border-b border-orange/10">
-                <CardTitle className="flex items-center gap-3 text-2xl md:text-3xl font-bold text-orange-800">
-                  <div className="p-2 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg">
-                    <Settings className="h-7 w-7 text-white" />
-                  </div>
-                  ตั้งค่าระบบ
-                </CardTitle>
-                <CardDescription className="text-lg md:text-xl text-orange-600">
-                  จัดการราคาขยะรีไซเคิลและรายชื่อผู้ขาย
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8">
-                <SystemSettings />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default RecycleSystem;
+export default Dashboard;
