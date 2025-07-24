@@ -1,16 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircle, Search } from "lucide-react";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import ReceiptView from './ReceiptView';
-import { useRef } from "react";
 
 interface WasteType {
   id: string;
@@ -41,9 +39,10 @@ const PurchaseForm = () => {
   const [showReceipt, setShowReceipt] = useState(false);
   const [departmentSearch, setDepartmentSearch] = useState("");
   const [wasteTypeSearch, setWasteTypeSearch] = useState("");
+  const [personSearch, setPersonSearch] = useState("");
   const receiptRef = useRef<HTMLDivElement>(null);
 
-  // Mock data - ในระบบจริงจะดึงจาก Google Sheets
+  // Mock data
   const wasteTypes: WasteType[] = [
     { id: "1", name: "กระดาษ", price: 3.5, unit: "กิโลกรัม" },
     { id: "2", name: "พลาสติก PET", price: 12, unit: "กิโลกรัม" },
@@ -63,57 +62,27 @@ const PurchaseForm = () => {
     { id: "8", name: "WARD2 - งานการพยาบาลผู้ป่วยใน หญิง" },
     { id: "9", name: "OPD - งานการพยาบาลผู้ป่วยนอก" },
     { id: "10", name: "PSY - จิตเวชและยาเสพติด" },
-    { id: "11", name: "งานเคลื่อนย้ายผู้ป่วย" },
-    { id: "12", name: "CSU - งานการพยาบาลหน่วยควบคุมการติดเชื้อ" },
-    { id: "13", name: "MNU - งานโภชนศาสตร์" },
-    { id: "14", name: "MAN - ฝ่ายบริหารงานทั่วไป" },
-    { id: "15", name: "MON - งานการเงิน" },
-    { id: "16", name: "ART - งานพัสดุ" },
-    { id: "17", name: "BOO - งานธุรการ" },
-    { id: "18", name: "AMB - งานยานพาหนะ" },
-    { id: "19", name: "GAR - งานภูมิทัศน์" },
-    { id: "20", name: "CLC - งานซักฟอก" },
-    { id: "21", name: "SEC - งานรักษาความปลอดภัย" },
-    { id: "22", name: "CLE - งานทำความสะอาด" },
-    { id: "23", name: "MED - งานเวชปฏิบัติทั่วไป" },
-    { id: "24", name: "XRA - งานรังสีวิทยา" },
-    { id: "25", name: "LAB - งานเทคนิคการแพทย์" },
-    { id: "26", name: "TTM - งานแพทย์แผนไทย" },
-    { id: "27", name: "PLA - แผนงานและประเมินผล" },
-    { id: "28", name: "COM - งานศูนย์คอมพิวเตอร์" },
-    { id: "29", name: "HAC - งานศูนย์ประกันสุขภาพ" },
-    { id: "30", name: "MRD - งานเวชระเบียน" },
-    { id: "31", name: "FMC - กลุ่มงานบริการด้านปฐมภูมิ" },
-    { id: "32", name: "PHA - ฝ่ายเภสัชกรรมชุมชน" },
-    { id: "33", name: "RHD - ฝ่ายเวชกรรมฟื้นฟู" },
-    { id: "34", name: "FUN - งานทันตกรรม" },
-    { id: "35", name: "HED - งานสุขศึกษาและประชาสัมพันธ์" },
-    { id: "36", name: "PO - การแพทย์" },
-    { id: "37", name: "NCD - งานการพยาบาลผู้ป่วยโรคไม่ติดต่อเรื้อรัง" },
-    { id: "38", name: "TEC - งานซ่อมบำรุง" },
-    { id: "39", name: "ES - งานสุขาภิบาล" },
-    { id: "40", name: "EYE - งานการพยาบาลผู้ป่วยจักษุ" },
-    { id: "41", name: "WARD4 - งานการพยาบาลผู้ป่วยใน พิเศษ" },
-    { id: "42", name: "PC - งานพยาบาลการดูแลผู้ป่วยระยะท้าย" },
-    { id: "43", name: "Boss - หัวหน้างาน" },
-    { id: "44", name: "ICU - งานผู่ป่วยหนัก" },
-    { id: "45", name: "MDC - ศูนย์ซ่อมเครื่องมือแพทย์" },
-    { id: "46", name: "PHA IPD - เภสัชกรรม ผู้ป่วยใน" },
-    { id: "47", name: "PHA OPD - เภสัชกรรม ผู้ป่วยนอก" },
-    { id: "48", name: "PHA NCD - เภสัชกรรม ผู้ป่วยโรคเรื้อรัง" },
   ];
 
   const persons: Person[] = [
-    { id: "1", name: "นางสาวผกามาศ วิรัณวัฒรา", phone: "095-972-8258" },
-    { id: "2", name: "นายธิติ บุดดาน้อย", phone: "082-345-6789" },
+    { id: "1", name: "นายสมชาย ใจดี", phone: "081-234-5678" },
+    { id: "2", name: "นางสาวสมหญิง รักดี", phone: "082-345-6789" },
+    { id: "3", name: "นายทดสอบ ทดสอบ", phone: "083-456-7890" },
+    { id: "4", name: "นางสาวตัวอย่าง ตัวอย่าง", phone: "084-567-8901" },
   ];
 
+  // Filter functions
   const filteredDepartments = departments.filter(dept => 
     dept.name.toLowerCase().includes(departmentSearch.toLowerCase())
   );
 
   const filteredWasteTypes = wasteTypes.filter(waste => 
     waste.name.toLowerCase().includes(wasteTypeSearch.toLowerCase())
+  );
+
+  const filteredPersons = persons.filter(person => 
+    person.name.toLowerCase().includes(personSearch.toLowerCase()) || 
+    (person.phone && person.phone.includes(personSearch))
   );
 
   const selectedWaste = wasteTypes.find(w => w.id === selectedWasteType);
@@ -153,22 +122,11 @@ const PurchaseForm = () => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       
-      const imgWidth = 190;
+      const imgWidth = 80; // Narrower width for receipt format
       const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 10;
-
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
+      
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`receipt-${lastTransaction.receiptNumber}.pdf`);
       
       toast({
@@ -179,30 +137,153 @@ const PurchaseForm = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '', 'width=800,height=600');
+    const printWindow = window.open('', '', 'width=400,height=600');
     if (printWindow && receiptRef.current) {
-      printWindow.document.write(`
+      const receiptHtml = `
+        <!DOCTYPE html>
         <html>
           <head>
             <title>ใบเสร็จรับเงิน</title>
+            <meta charset="UTF-8">
             <style>
-              body { margin: 0; padding: 0; }
-              @page { size: auto; margin: 0mm; }
+              @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+              body { 
+                margin: 0; 
+                padding: 10px; 
+                font-family: 'Sarabun', sans-serif;
+                background-color: #fff;
+              }
+              @page { 
+                size: 80mm 200mm;
+                margin: 0;
+              }
+              .receipt-container {
+                width: 75mm;
+                margin: 0 auto;
+                padding: 10px;
+                border: 1px dashed #ddd;
+              }
+              .receipt-header {
+                text-align: center;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px dashed #000;
+              }
+              .hospital-name {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 5px;
+              }
+              .receipt-title {
+                font-size: 16px;
+                color: #555;
+              }
+              .receipt-info {
+                font-size: 12px;
+                margin: 5px 0;
+              }
+              .receipt-details {
+                margin: 10px 0;
+                font-size: 14px;
+              }
+              .detail-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 8px 0;
+              }
+              .detail-label {
+                font-weight: bold;
+                min-width: 100px;
+              }
+              .receipt-total {
+                margin-top: 15px;
+                padding-top: 10px;
+                border-top: 1px dashed #000;
+                font-size: 16px;
+                font-weight: bold;
+              }
+              .receipt-footer {
+                margin-top: 15px;
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+              }
+              .stamp-area {
+                margin-top: 20px;
+                text-align: right;
+                font-size: 12px;
+              }
+              .stamp-box {
+                display: inline-block;
+                width: 70px;
+                height: 70px;
+                border: 1px solid #000;
+                text-align: center;
+                line-height: 70px;
+                opacity: 0.7;
+              }
             </style>
           </head>
           <body>
-            ${receiptRef.current.innerHTML}
+            <div class="receipt-container">
+              <div class="receipt-header">
+                <div class="hospital-name">โรงพยาบาลตัวอย่าง</div>
+                <div class="receipt-title">ใบเสร็จรับเงิน</div>
+                <div class="receipt-info">เลขที่: ${lastTransaction.receiptNumber}</div>
+                <div class="receipt-info">วันที่: ${lastTransaction.date} ${lastTransaction.time}</div>
+              </div>
+              
+              <div class="receipt-details">
+                <div class="detail-row">
+                  <span class="detail-label">ผู้ขาย:</span>
+                  <span>${lastTransaction.seller}</span>
+                </div>
+                
+                <div class="detail-row">
+                  <span class="detail-label">ประเภทขยะ:</span>
+                  <span>${lastTransaction.wasteType}</span>
+                </div>
+                
+                <div class="detail-row">
+                  <span class="detail-label">น้ำหนัก:</span>
+                  <span>${lastTransaction.weight} ${selectedWaste?.unit}</span>
+                </div>
+                
+                <div class="detail-row">
+                  <span class="detail-label">ราคาต่อหน่วย:</span>
+                  <span>${lastTransaction.pricePerUnit} บาท/${selectedWaste?.unit}</span>
+                </div>
+              </div>
+              
+              <div class="receipt-total">
+                <div class="detail-row">
+                  <span class="detail-label">รวมเป็นเงิน:</span>
+                  <span>${lastTransaction.totalAmount.toFixed(2)} บาท</span>
+                </div>
+              </div>
+              
+              <div class="stamp-area">
+                <div class="stamp-box">ลายเซ็น</div>
+              </div>
+              
+              <div class="receipt-footer">
+                ขอบคุณที่ร่วมรักษาสิ่งแวดล้อม<br>
+                โทร: 02-123-4567
+              </div>
+            </div>
+            
             <script>
-              window.onload = function() {
-                setTimeout(function() {
-                  window.print();
-                  window.close();
-                }, 100);
-              }
+              setTimeout(() => {
+                window.print();
+                setTimeout(() => window.close(), 500);
+              }, 200);
             </script>
           </body>
         </html>
-      `);
+      `;
+      
+      printWindow.document.open();
+      printWindow.document.write(receiptHtml);
       printWindow.document.close();
     }
   };
@@ -219,14 +300,12 @@ const PurchaseForm = () => {
       return;
     }
 
-    // สร้างเลขที่ใบเสร็จ
     const receiptNumber = `RCP-${String(Date.now()).slice(-5).padStart(5, '0')}`;
     
-    // ข้อมูลการรับซื้อ
     const transactionData = {
       receiptNumber,
       date: new Date().toLocaleDateString('th-TH'),
-      time: new Date().toLocaleTimeString('th-TH'),
+      time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
       sellerType,
       seller: sellerType === "department" 
         ? departments.find(d => d.id === selectedDepartment)?.name 
@@ -237,7 +316,6 @@ const PurchaseForm = () => {
       totalAmount,
     };
 
-    // บันทึกข้อมูล (ในระบบจริงจะส่งไป Google Sheets)
     console.log("Transaction Data:", transactionData);
     
     setLastTransaction(transactionData);
@@ -248,7 +326,7 @@ const PurchaseForm = () => {
       description: `เลขที่ใบเสร็จ: ${receiptNumber}`,
     });
 
-    // รีเซ็ตฟอร์ม
+    // Reset form
     setSelectedDepartment("");
     setSelectedPerson("");
     setSelectedWasteType("");
@@ -256,6 +334,7 @@ const PurchaseForm = () => {
     setTotalAmount(0);
     setDepartmentSearch("");
     setWasteTypeSearch("");
+    setPersonSearch("");
   };
 
   if (showReceipt && lastTransaction) {
@@ -282,286 +361,361 @@ const PurchaseForm = () => {
           </Button>
         </div>
         
-        <ReceiptView
+        <div 
           ref={receiptRef}
-          data={lastTransaction}
-          onDownloadPDF={generatePDF}
-          onPrint={handlePrint}
-        />
+          className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto border border-gray-200"
+        >
+          <div className="text-center mb-4">
+            <h1 className="text-xl font-bold">โรงพยาบาลตัวอย่าง</h1>
+            <h2 className="text-lg text-gray-600">ใบเสร็จรับเงิน</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              เลขที่: {lastTransaction.receiptNumber}
+            </p>
+            <p className="text-sm text-gray-500">
+              วันที่: {lastTransaction.date} เวลา: {lastTransaction.time}
+            </p>
+          </div>
+
+          <div className="border-t border-b border-gray-300 py-3 my-3">
+            <div className="flex justify-between mb-2">
+              <span className="font-medium">ผู้ขาย:</span>
+              <span>{lastTransaction.seller}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="font-medium">ประเภทขยะ:</span>
+              <span>{lastTransaction.wasteType}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="font-medium">น้ำหนัก:</span>
+              <span>{lastTransaction.weight} {selectedWaste?.unit}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium">ราคาต่อหน่วย:</span>
+              <span>{lastTransaction.pricePerUnit} บาท/{selectedWaste?.unit}</span>
+            </div>
+          </div>
+
+          <div className="flex justify-between text-lg font-bold mt-4 mb-6">
+            <span>รวมเป็นเงิน:</span>
+            <span className="text-primary">{lastTransaction.totalAmount.toFixed(2)} บาท</span>
+          </div>
+
+          <div className="text-right mt-8">
+            <div className="inline-block border border-gray-400 p-2 text-sm text-gray-500">
+              ลายเซ็นผู้รับ
+            </div>
+          </div>
+
+          <div className="text-center text-sm text-gray-500 mt-8">
+            <p>ขอบคุณที่ร่วมรักษาสิ่งแวดล้อม</p>
+            <p>โทร: 02-123-4567</p>
+          </div>
+        </div>
+
+        <div className="flex justify-center gap-4 mt-6">
+          <Button onClick={generatePDF} className="gap-2">
+            <Download className="h-4 w-4" />
+            ดาวน์โหลด PDF
+          </Button>
+          <Button onClick={handlePrint} variant="outline" className="gap-2">
+            <Receipt className="h-4 w-4" />
+            พิมพ์ใบเสร็จ
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {/* เลือกประเภทผู้ขาย */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className={sellerType === "department" ? "ring-2 ring-primary" : ""}>
-          <CardHeader className="pb-4">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="flex items-center gap-3">
-                <Building className="h-8 w-8 text-primary" />
-                <CardTitle className="text-2xl font-bold">แผนกในโรงพยาบาล</CardTitle>
-              </div>
-              <Button
-                type="button"
-                variant={sellerType === "department" ? "default" : "outline"}
-                size="lg"
-                className="w-full h-16 text-xl font-bold"
-                onClick={() => setSellerType("department")}
-              >
-                {sellerType === "department" ? "✓ เลือกแล้ว" : "เลือกแผนก"}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Select 
-              value={selectedDepartment} 
-              onValueChange={setSelectedDepartment}
-              disabled={sellerType !== "department"}
-            >
-              <SelectTrigger className="h-16 text-xl font-medium">
-                <SelectValue placeholder="👆 เลือกแผนกของคุณ" />
-              </SelectTrigger>
-              <SelectContent className="max-h-80">
-                <div className="sticky top-0 z-10 bg-background p-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="ค้นหาแผนก..."
-                      className="pl-8"
-                      value={departmentSearch}
-                      onChange={(e) => setDepartmentSearch(e.target.value)}
-                    />
-                  </div>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Department Card */}
+          <Card className={sellerType === "department" ? "ring-2 ring-primary" : ""}>
+            <CardHeader className="pb-4">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="flex items-center gap-3">
+                  <Building className="h-8 w-8 text-primary" />
+                  <CardTitle className="text-2xl font-bold">แผนกในโรงพยาบาล</CardTitle>
                 </div>
-                {filteredDepartments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id} className="h-12 text-lg">
-                    {dept.name}
-                  </SelectItem>
-                ))}
-                {filteredDepartments.length === 0 && (
-                  <div className="text-center py-4 text-muted-foreground">
-                    ไม่พบแผนกที่ค้นหา
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-
-        <Card className={sellerType === "person" ? "ring-2 ring-primary" : ""}>
-          <CardHeader className="pb-4">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="flex items-center gap-3">
-                <Users className="h-8 w-8 text-primary" />
-                <CardTitle className="text-2xl font-bold">บุคคลทั่วไป</CardTitle>
+                <Button
+                  type="button"
+                  variant={sellerType === "department" ? "default" : "outline"}
+                  size="lg"
+                  className="w-full h-16 text-xl font-bold"
+                  onClick={() => setSellerType("department")}
+                >
+                  {sellerType === "department" ? "✓ เลือกแล้ว" : "เลือกแผนก"}
+                </Button>
               </div>
-              <Button
-                type="button"
-                variant={sellerType === "person" ? "default" : "outline"}
-                size="lg"
-                className="w-full h-16 text-xl font-bold"
-                onClick={() => setSellerType("person")}
+            </CardHeader>
+            <CardContent>
+              <Select 
+                value={selectedDepartment} 
+                onValueChange={setSelectedDepartment}
+                disabled={sellerType !== "department"}
               >
-                {sellerType === "person" ? "✓ เลือกแล้ว" : "เลือกบุคคล"}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Select 
-              value={selectedPerson} 
-              onValueChange={setSelectedPerson}
-              disabled={sellerType !== "person"}
-            >
-              <SelectTrigger className="h-16 text-xl font-medium">
-                <SelectValue placeholder="👆 เลือกบุคคล" />
-              </SelectTrigger>
-              <SelectContent>
-                {persons.map((person) => (
-                  <SelectItem key={person.id} value={person.id} className="h-12">
-                    <div className="text-lg">
-                      <div className="font-medium">{person.name}</div>
-                      {person.phone && (
-                        <div className="text-base text-muted-foreground">{person.phone}</div>
-                      )}
+                <SelectTrigger className="h-16 text-xl font-medium">
+                  <SelectValue placeholder="👆 เลือกแผนกของคุณ" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <div className="sticky top-0 z-10 bg-background p-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="ค้นหาแผนก..."
+                        className="pl-8"
+                        value={departmentSearch}
+                        onChange={(e) => setDepartmentSearch(e.target.value)}
+                      />
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator />
-
-      {/* ข้อมูลขยะรีไซเคิล */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div>
-            <Label htmlFor="wasteType" className="text-2xl font-bold mb-4 block">🗂️ ประเภทขยะรีไซเคิล</Label>
-            <Select value={selectedWasteType} onValueChange={setSelectedWasteType}>
-              <SelectTrigger className="h-16 text-xl font-medium">
-                <SelectValue placeholder="👆 เลือกประเภทขยะ" />
-              </SelectTrigger>
-              <SelectContent className="max-h-80">
-                <div className="sticky top-0 z-10 bg-background p-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="ค้นหาประเภทขยะ..."
-                      className="pl-8"
-                      value={wasteTypeSearch}
-                      onChange={(e) => setWasteTypeSearch(e.target.value)}
-                    />
                   </div>
+                  {filteredDepartments.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id} className="h-12 text-lg">
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                  {filteredDepartments.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      ไม่พบแผนกที่ค้นหา
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Person Card */}
+          <Card className={sellerType === "person" ? "ring-2 ring-primary" : ""}>
+            <CardHeader className="pb-4">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="flex items-center gap-3">
+                  <Users className="h-8 w-8 text-primary" />
+                  <CardTitle className="text-2xl font-bold">บุคคลทั่วไป</CardTitle>
                 </div>
-                {filteredWasteTypes.map((waste) => (
-                  <SelectItem key={waste.id} value={waste.id} className="h-16">
-                    <div className="flex justify-between items-center w-full">
-                      <span className="text-lg font-medium">{waste.name}</span>
-                      <span className="text-lg text-primary font-bold ml-4">
-                        {waste.price} บาท/{waste.unit}
-                      </span>
+                <Button
+                  type="button"
+                  variant={sellerType === "person" ? "default" : "outline"}
+                  size="lg"
+                  className="w-full h-16 text-xl font-bold"
+                  onClick={() => setSellerType("person")}
+                >
+                  {sellerType === "person" ? "✓ เลือกแล้ว" : "เลือกบุคคล"}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Select 
+                value={selectedPerson} 
+                onValueChange={setSelectedPerson}
+                disabled={sellerType !== "person"}
+              >
+                <SelectTrigger className="h-16 text-xl font-medium">
+                  <SelectValue placeholder="👆 เลือกบุคคล" />
+                </SelectTrigger>
+                <SelectContent>
+                  <div className="sticky top-0 z-10 bg-background p-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="ค้นหาบุคคล..."
+                        className="pl-8"
+                        value={personSearch}
+                        onChange={(e) => setPersonSearch(e.target.value)}
+                      />
                     </div>
-                  </SelectItem>
-                ))}
-                {filteredWasteTypes.length === 0 && (
-                  <div className="text-center py-4 text-muted-foreground">
-                    ไม่พบประเภทขยะที่ค้นหา
                   </div>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="weight" className="text-2xl font-bold mb-4 block">⚖️ น้ำหนัก ({selectedWaste?.unit || "กิโลกรัม"})</Label>
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="h-16 w-16 text-2xl font-bold"
-                onClick={() => adjustWeight(-0.5)}
-              >
-                <Minus className="h-8 w-8" />
-              </Button>
-              <Input
-                id="weight"
-                type="number"
-                step="0.1"
-                placeholder="0.0"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                className="h-16 text-3xl text-center font-bold"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="h-16 w-16 text-2xl font-bold"
-                onClick={() => adjustWeight(0.5)}
-              >
-                <Plus className="h-8 w-8" />
-              </Button>
-            </div>
-            <div className="grid grid-cols-3 gap-3 mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => adjustWeight(1)}
-                className="h-14 text-xl font-bold"
-              >
-                +1 กก.
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => adjustWeight(5)}
-                className="h-14 text-xl font-bold"
-              >
-                +5 กก.
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => adjustWeight(10)}
-                className="h-14 text-xl font-bold"
-              >
-                +10 กก.
-              </Button>
-            </div>
-          </div>
+                  {filteredPersons.map((person) => (
+                    <SelectItem key={person.id} value={person.id} className="h-12">
+                      <div className="text-lg">
+                        <div className="font-medium">{person.name}</div>
+                        {person.phone && (
+                          <div className="text-base text-muted-foreground">{person.phone}</div>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                  {filteredPersons.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      ไม่พบบุคคลที่ค้นหา
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* แสดงการคำนวณ */}
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <Calculator className="h-8 w-8" />
-              💰 สรุปการคำนวณ
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between text-lg">
-              <span className="text-muted-foreground font-medium">ประเภทขยะ:</span>
-              <span className="font-bold">{selectedWaste?.name || "-"}</span>
+        <Separator />
+
+        {/* Waste Information */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            {/* Waste Type Selection */}
+            <div>
+              <Label htmlFor="wasteType" className="text-2xl font-bold mb-4 block">🗂️ ประเภทขยะรีไซเคิล</Label>
+              <Select value={selectedWasteType} onValueChange={setSelectedWasteType}>
+                <SelectTrigger className="h-16 text-xl font-medium">
+                  <SelectValue placeholder="👆 เลือกประเภทขยะ" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <div className="sticky top-0 z-10 bg-background p-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="ค้นหาประเภทขยะ..."
+                        className="pl-8"
+                        value={wasteTypeSearch}
+                        onChange={(e) => setWasteTypeSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {filteredWasteTypes.map((waste) => (
+                    <SelectItem key={waste.id} value={waste.id} className="h-16">
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-lg font-medium">{waste.name}</span>
+                        <span className="text-lg text-primary font-bold ml-4">
+                          {waste.price} บาท/{waste.unit}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                  {filteredWasteTypes.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      ไม่พบประเภทขยะที่ค้นหา
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex justify-between text-lg">
-              <span className="text-muted-foreground font-medium">ราคาต่อหน่วย:</span>
-              <span className="font-bold">{selectedWaste ? `${selectedWaste.price} บาท/${selectedWaste.unit}` : "-"}</span>
-            </div>
-            <div className="flex justify-between text-lg">
-              <span className="text-muted-foreground font-medium">น้ำหนัก:</span>
-              <span className="font-bold">{weight ? `${weight} ${selectedWaste?.unit || "กิโลกรัม"}` : "-"}</span>
-            </div>
-            <Separator />
-            <div className="bg-white p-4 rounded-lg border-2 border-primary">
-              <div className="flex justify-between text-3xl font-bold">
-                <span>💵 ยอดรวม:</span>
-                <span className="text-primary">{totalAmount.toFixed(2)} บาท</span>
+
+            {/* Weight Input */}
+            <div>
+              <Label htmlFor="weight" className="text-2xl font-bold mb-4 block">⚖️ น้ำหนัก ({selectedWaste?.unit || "กิโลกรัม"})</Label>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="h-16 w-16 text-2xl font-bold"
+                  onClick={() => adjustWeight(-0.5)}
+                >
+                  <Minus className="h-8 w-8" />
+                </Button>
+                <Input
+                  id="weight"
+                  type="number"
+                  step="0.1"
+                  placeholder="0.0"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="h-16 text-3xl text-center font-bold"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="h-16 w-16 text-2xl font-bold"
+                  onClick={() => adjustWeight(0.5)}
+                >
+                  <Plus className="h-8 w-8" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-3 gap-3 mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => adjustWeight(1)}
+                  className="h-14 text-xl font-bold"
+                >
+                  +1 กก.
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => adjustWeight(5)}
+                  className="h-14 text-xl font-bold"
+                >
+                  +5 กก.
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => adjustWeight(10)}
+                  className="h-14 text-xl font-bold"
+                >
+                  +10 กก.
+                </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
 
-      {/* ปุ่มบันทึก */}
-      <div className="space-y-4">
-        <Button 
-          type="submit" 
-          size="lg"
-          className="w-full h-20 text-2xl font-bold bg-gradient-primary shadow-lg"
-        >
-          <Receipt className="h-8 w-8 mr-3" />
-          💾 บันทึกและออกใบเสร็จ
-        </Button>
-        
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="lg"
-          className="w-full h-16 text-xl"
-          onClick={() => {
-            setSelectedDepartment("");
-            setSelectedPerson("");
-            setSelectedWasteType("");
-            setWeight("");
-            setTotalAmount(0);
-            setDepartmentSearch("");
-            setWasteTypeSearch("");
-          }}
-        >
-          🗑️ ล้างข้อมูลทั้งหมด
-        </Button>
-      </div>
-    </form>
+          {/* Calculation Summary */}
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <Calculator className="h-8 w-8" />
+                💰 สรุปการคำนวณ
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between text-lg">
+                <span className="text-muted-foreground font-medium">ประเภทขยะ:</span>
+                <span className="font-bold">{selectedWaste?.name || "-"}</span>
+              </div>
+              <div className="flex justify-between text-lg">
+                <span className="text-muted-foreground font-medium">ราคาต่อหน่วย:</span>
+                <span className="font-bold">{selectedWaste ? `${selectedWaste.price} บาท/${selectedWaste.unit}` : "-"}</span>
+              </div>
+              <div className="flex justify-between text-lg">
+                <span className="text-muted-foreground font-medium">น้ำหนัก:</span>
+                <span className="font-bold">{weight ? `${weight} ${selectedWaste?.unit || "กิโลกรัม"}` : "-"}</span>
+              </div>
+              <Separator />
+              <div className="bg-white p-4 rounded-lg border-2 border-primary">
+                <div className="flex justify-between text-3xl font-bold">
+                  <span>💵 ยอดรวม:</span>
+                  <span className="text-primary">{totalAmount.toFixed(2)} บาท</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="space-y-4">
+          <Button 
+            type="submit" 
+            size="lg"
+            className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-primary to-primary/90 shadow-lg hover:from-primary/90 hover:to-primary"
+          >
+            <Receipt className="h-8 w-8 mr-3" />
+            💾 บันทึกและออกใบเสร็จ
+          </Button>
+          
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="lg"
+            className="w-full h-16 text-xl"
+            onClick={() => {
+              setSelectedDepartment("");
+              setSelectedPerson("");
+              setSelectedWasteType("");
+              setWeight("");
+              setTotalAmount(0);
+              setDepartmentSearch("");
+              setWasteTypeSearch("");
+              setPersonSearch("");
+            }}
+          >
+            🗑️ ล้างข้อมูลทั้งหมด
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };
