@@ -1,4 +1,12 @@
 // Data Storage และ Management System
+export interface TransactionItem {
+  wasteTypeId: string;
+  wasteTypeName: string;
+  weight: number;
+  pricePerUnit: number;
+  amount: number;
+}
+
 export interface Transaction {
   id: string;
   receiptNumber: string;
@@ -6,9 +14,8 @@ export interface Transaction {
   time: string;
   sellerType: "department" | "person";
   seller: string;
-  wasteType: string;
-  weight: number;
-  pricePerUnit: number;
+  items: TransactionItem[];
+  totalWeight: number;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;

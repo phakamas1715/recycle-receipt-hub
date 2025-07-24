@@ -10,7 +10,7 @@ import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircl
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReceiptView from "./ReceiptView";
-import { dataStorage, Transaction } from "@/lib/dataStorage";
+import { dataStorage, Transaction, TransactionItem } from "@/lib/dataStorage";
 
 interface WasteType {
   id: string;
@@ -37,6 +37,7 @@ const PurchaseForm = () => {
   const [selectedPerson, setSelectedPerson] = useState("");
   const [selectedWasteType, setSelectedWasteType] = useState("");
   const [weight, setWeight] = useState("");
+  const [cartItems, setCartItems] = useState<TransactionItem[]>([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -130,16 +131,53 @@ const PurchaseForm = () => {
 
   const selectedWaste = wasteTypes.find(w => w.id === selectedWasteType);
 
+  // Calculate total from cart items
   useEffect(() => {
-    if (selectedWaste && weight) {
-      const weightNum = parseFloat(weight);
-      if (!isNaN(weightNum)) {
-        setTotalAmount(weightNum * selectedWaste.price);
-      }
-    } else {
-      setTotalAmount(0);
+    const total = cartItems.reduce((sum, item) => sum + item.amount, 0);
+    setTotalAmount(total);
+  }, [cartItems]);
+
+  const addToCart = () => {
+    if (!selectedWaste || !weight) {
+      toast({
+        title: "ข้อมูลไม่ครบถ้วน",
+        description: "กรุณาเลือกประเภทขยะและใส่น้ำหนัก",
+        variant: "destructive",
+      });
+      return;
     }
-  }, [selectedWaste, weight]);
+
+    const weightNum = parseFloat(weight);
+    if (isNaN(weightNum) || weightNum <= 0) {
+      toast({
+        title: "น้ำหนักไม่ถูกต้อง",
+        description: "กรุณาใส่น้ำหนักที่ถูกต้อง",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newItem: TransactionItem = {
+      wasteTypeId: selectedWaste.id,
+      wasteTypeName: selectedWaste.name,
+      weight: weightNum,
+      pricePerUnit: selectedWaste.price,
+      amount: weightNum * selectedWaste.price
+    };
+
+    setCartItems([...cartItems, newItem]);
+    setSelectedWasteType("");
+    setWeight("");
+    
+    toast({
+      title: "เพิ่มรายการสำเร็จ",
+      description: `เพิ่ม ${selectedWaste.name} ${weightNum} ${selectedWaste.unit}`,
+    });
+  };
+
+  const removeFromCart = (index: number) => {
+    setCartItems(cartItems.filter((_, i) => i !== index));
+  };
 
   const adjustWeight = (amount: number) => {
     const currentWeight = parseFloat(weight) || 0;
