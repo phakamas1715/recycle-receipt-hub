@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Settings, Database, MessageSquare, Zap, Check, X } from "lucide-react";
+import { Settings, Database, MessageSquare, Zap, Check, X, Send } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ConfigSystem = () => {
@@ -21,13 +21,20 @@ const ConfigSystem = () => {
     webhookUrl: "",
   });
 
+  const [telegramConfig, setTelegramConfig] = useState({
+    botToken: "",
+    chatId: "",
+  });
+
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<{
     googleSheets: boolean | null;
     lineOA: boolean | null;
+    telegram: boolean | null;
   }>({
     googleSheets: null,
     lineOA: null,
+    telegram: null,
   });
 
   const handleSaveGoogleSheetsConfig = () => {
@@ -110,6 +117,46 @@ const ConfigSystem = () => {
     setIsTestingConnection(false);
   };
 
+  const handleSaveTelegramConfig = () => {
+    if (!telegramConfig.botToken || !telegramConfig.chatId) {
+      toast({
+        title: "ข้อมูลไม่ครบถ้วน",
+        description: "กรุณากรอก Bot Token และ Chat ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Save to localStorage (in real system, this would be encrypted and stored securely)
+    localStorage.setItem("telegramConfig", JSON.stringify(telegramConfig));
+    
+    toast({
+      title: "บันทึกการตั้งค่าสำเร็จ",
+      description: "การตั้งค่า Telegram ถูกบันทึกแล้ว",
+    });
+  };
+
+  const testTelegramConnection = async () => {
+    setIsTestingConnection(true);
+    try {
+      // Simulate API test (in real system, this would call Telegram API)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setConnectionStatus(prev => ({ ...prev, telegram: true }));
+      toast({
+        title: "เชื่อมต่อสำเร็จ",
+        description: "การเชื่อมต่อ Telegram ทำงานปกติ",
+      });
+    } catch (error) {
+      setConnectionStatus(prev => ({ ...prev, telegram: false }));
+      toast({
+        title: "เชื่อมต่อไม่สำเร็จ",
+        description: "ไม่สามารถเชื่อมต่อ Telegram ได้",
+        variant: "destructive",
+      });
+    }
+    setIsTestingConnection(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -118,7 +165,7 @@ const ConfigSystem = () => {
       </div>
 
       <Tabs defaultValue="google-sheets" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="google-sheets" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
             Google Sheets
@@ -126,6 +173,10 @@ const ConfigSystem = () => {
           <TabsTrigger value="line-oa" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             Line OA
+          </TabsTrigger>
+          <TabsTrigger value="telegram" className="flex items-center gap-2">
+            <Send className="h-4 w-4" />
+            Telegram
           </TabsTrigger>
         </TabsList>
 
@@ -310,6 +361,87 @@ const ConfigSystem = () => {
                 <Button 
                   variant="outline" 
                   onClick={testLineConnection}
+                  disabled={isTestingConnection}
+                >
+                  {isTestingConnection ? "กำลังทดสอบ..." : "ทดสอบการเชื่อมต่อ"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="telegram">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Send className="h-5 w-5 text-primary" />
+                  การเชื่อมต่อ Telegram Bot
+                </div>
+                {connectionStatus.telegram !== null && (
+                  <div className="flex items-center gap-2">
+                    {connectionStatus.telegram ? (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <Check className="h-4 w-4" />
+                        <span className="text-sm">เชื่อมต่อแล้ว</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-red-600">
+                        <X className="h-4 w-4" />
+                        <span className="text-sm">เชื่อมต่อไม่สำเร็จ</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardTitle>
+              <CardDescription>
+                กำหนดค่าการเชื่อมต่อกับ Telegram สำหรับการแจ้งเตือนและรายงาน
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert>
+                <Send className="h-4 w-4" />
+                <AlertDescription>
+                  สามารถส่งรายงานสรุปประจำวันและแจ้งเตือนผ่าน Telegram ได้
+                </AlertDescription>
+              </Alert>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="botToken">Bot Token</Label>
+                  <Input
+                    id="botToken"
+                    type="password"
+                    placeholder="1234567890:ABC..."
+                    value={telegramConfig.botToken}
+                    onChange={(e) => setTelegramConfig(prev => ({
+                      ...prev,
+                      botToken: e.target.value
+                    }))}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="chatId">Chat ID</Label>
+                  <Input
+                    id="chatId"
+                    placeholder="-1001234567890"
+                    value={telegramConfig.chatId}
+                    onChange={(e) => setTelegramConfig(prev => ({
+                      ...prev,
+                      chatId: e.target.value
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button onClick={handleSaveTelegramConfig}>
+                  บันทึกการตั้งค่า
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={testTelegramConnection}
                   disabled={isTestingConnection}
                 >
                   {isTestingConnection ? "กำลังทดสอบ..." : "ทดสอบการเชื่อมต่อ"}

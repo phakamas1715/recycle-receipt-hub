@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Calculator, Receipt, Users, Building } from "lucide-react";
+import { Calculator, Receipt, Users, Building, Download, Plus, Minus } from "lucide-react";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface WasteType {
   id: string;
@@ -33,6 +35,7 @@ const PurchaseForm = () => {
   const [selectedWasteType, setSelectedWasteType] = useState("");
   const [weight, setWeight] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
+  const [lastTransaction, setLastTransaction] = useState<any>(null);
 
   // Mock data - ในระบบจริงจะดึงจาก Google Sheets
   const wasteTypes: WasteType[] = [
@@ -112,6 +115,52 @@ const PurchaseForm = () => {
     }
   }, [selectedWaste, weight]);
 
+  const adjustWeight = (amount: number) => {
+    const currentWeight = parseFloat(weight) || 0;
+    const newWeight = Math.max(0, currentWeight + amount);
+    setWeight(newWeight.toString());
+  };
+
+  const generatePDF = () => {
+    if (!lastTransaction) {
+      toast({
+        title: "ไม่พบข้อมูลใบเสร็จ",
+        description: "กรุณาบันทึกรายการก่อนสร้าง PDF",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const pdf = new jsPDF();
+    
+    // หัวเอกสาร
+    pdf.setFontSize(16);
+    pdf.text('ใบเสร็จรับซื้อขยะรีไซเคิล', 20, 20);
+    pdf.text('โรงพยาบาลน้ำพอง', 20, 35);
+    
+    pdf.setFontSize(12);
+    pdf.text(`เลขที่ใบเสร็จ: ${lastTransaction.receiptNumber}`, 20, 55);
+    pdf.text(`วันที่: ${lastTransaction.date}`, 20, 70);
+    pdf.text(`เวลา: ${lastTransaction.time}`, 20, 85);
+    
+    pdf.text(`ผู้ขาย: ${lastTransaction.seller}`, 20, 105);
+    pdf.text(`ประเภท: ${lastTransaction.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป'}`, 20, 120);
+    
+    pdf.text(`ประเภทขยะ: ${lastTransaction.wasteType}`, 20, 140);
+    pdf.text(`น้ำหนัก: ${lastTransaction.weight} กิโลกรัม`, 20, 155);
+    pdf.text(`ราคาต่อหน่วย: ${lastTransaction.pricePerUnit} บาท/กิโลกรัม`, 20, 170);
+    
+    pdf.setFontSize(14);
+    pdf.text(`ยอดรวม: ${lastTransaction.totalAmount.toFixed(2)} บาท`, 20, 190);
+    
+    pdf.save(`receipt-${lastTransaction.receiptNumber}.pdf`);
+    
+    toast({
+      title: "สร้าง PDF สำเร็จ",
+      description: "ไฟล์ใบเสร็จถูกดาวน์โหลดแล้ว",
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -145,6 +194,8 @@ const PurchaseForm = () => {
     // บันทึกข้อมูล (ในระบบจริงจะส่งไป Google Sheets)
     console.log("Transaction Data:", transactionData);
     
+    setLastTransaction(transactionData);
+    
     toast({
       title: "บันทึกข้อมูลสำเร็จ",
       description: `เลขที่ใบเสร็จ: ${receiptNumber}`,
@@ -159,6 +210,25 @@ const PurchaseForm = () => {
   };
 
   return (
+    <div className="space-y-6">
+      {/* แสดงปุ่ม PDF ถ้ามีรายการล่าสุด */}
+      {lastTransaction && (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-green-800">บันทึกรายการล่าสุดสำเร็จ</p>
+                <p className="text-sm text-green-600">เลขที่ใบเสร็จ: {lastTransaction.receiptNumber}</p>
+              </div>
+              <Button onClick={generatePDF} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                ดาวน์โหลด PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* เลือกประเภทผู้ขาย */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,13 +236,14 @@ const PurchaseForm = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Building className="h-5 w-5 text-primary" />
-                <CardTitle className="text-lg">แผนกในโรงพยาบาล</CardTitle>
+                <Building className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl md:text-lg">แผนกในโรงพยาบาล</CardTitle>
               </div>
               <Button
                 type="button"
                 variant={sellerType === "department" ? "default" : "outline"}
-                size="sm"
+                size="lg"
+                className="h-12 px-6 text-lg md:h-8 md:px-4 md:text-sm"
                 onClick={() => setSellerType("department")}
               >
                 เลือก
@@ -185,7 +256,7 @@ const PurchaseForm = () => {
               onValueChange={setSelectedDepartment}
               disabled={sellerType !== "department"}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12 text-lg md:h-10 md:text-base">
                 <SelectValue placeholder="เลือกแผนก" />
               </SelectTrigger>
               <SelectContent>
@@ -203,13 +274,14 @@ const PurchaseForm = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <CardTitle className="text-lg">บุคคลทั่วไป</CardTitle>
+                <Users className="h-6 w-6 text-primary" />
+                <CardTitle className="text-xl md:text-lg">บุคคลทั่วไป</CardTitle>
               </div>
               <Button
                 type="button"
                 variant={sellerType === "person" ? "default" : "outline"}
-                size="sm"
+                size="lg"
+                className="h-12 px-6 text-lg md:h-8 md:px-4 md:text-sm"
                 onClick={() => setSellerType("person")}
               >
                 เลือก
@@ -222,7 +294,7 @@ const PurchaseForm = () => {
               onValueChange={setSelectedPerson}
               disabled={sellerType !== "person"}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12 text-lg md:h-10 md:text-base">
                 <SelectValue placeholder="เลือกบุคคล" />
               </SelectTrigger>
               <SelectContent>
@@ -248,9 +320,9 @@ const PurchaseForm = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="wasteType">ประเภทขยะรีไซเคิล</Label>
+            <Label htmlFor="wasteType" className="text-lg md:text-base font-medium">ประเภทขยะรีไซเคิล</Label>
             <Select value={selectedWasteType} onValueChange={setSelectedWasteType}>
-              <SelectTrigger>
+              <SelectTrigger className="h-12 text-lg md:h-10 md:text-base">
                 <SelectValue placeholder="เลือกประเภทขยะ" />
               </SelectTrigger>
               <SelectContent>
@@ -269,15 +341,65 @@ const PurchaseForm = () => {
           </div>
 
           <div>
-            <Label htmlFor="weight">น้ำหนัก ({selectedWaste?.unit || "กิโลกรัม"})</Label>
-            <Input
-              id="weight"
-              type="number"
-              step="0.1"
-              placeholder="0.0"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-            />
+            <Label htmlFor="weight" className="text-lg md:text-base font-medium">น้ำหนัก ({selectedWaste?.unit || "กิโลกรัม"})</Label>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="h-12 w-12 md:h-10 md:w-10"
+                onClick={() => adjustWeight(-0.5)}
+              >
+                <Minus className="h-6 w-6 md:h-4 md:w-4" />
+              </Button>
+              <Input
+                id="weight"
+                type="number"
+                step="0.1"
+                placeholder="0.0"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="h-12 text-lg text-center md:h-10 md:text-base"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="h-12 w-12 md:h-10 md:w-10"
+                onClick={() => adjustWeight(0.5)}
+              >
+                <Plus className="h-6 w-6 md:h-4 md:w-4" />
+              </Button>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => adjustWeight(1)}
+                className="flex-1 h-10 text-base md:h-8 md:text-sm"
+              >
+                +1 กก.
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => adjustWeight(5)}
+                className="flex-1 h-10 text-base md:h-8 md:text-sm"
+              >
+                +5 กก.
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => adjustWeight(10)}
+                className="flex-1 h-10 text-base md:h-8 md:text-sm"
+              >
+                +10 กก.
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -290,44 +412,55 @@ const PurchaseForm = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between">
+            <div className="flex justify-between text-base md:text-sm">
               <span className="text-muted-foreground">ประเภทขยะ:</span>
-              <span>{selectedWaste?.name || "-"}</span>
+              <span className="font-medium">{selectedWaste?.name || "-"}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-base md:text-sm">
               <span className="text-muted-foreground">ราคาต่อหน่วย:</span>
-              <span>{selectedWaste ? `${selectedWaste.price} บาท/${selectedWaste.unit}` : "-"}</span>
+              <span className="font-medium">{selectedWaste ? `${selectedWaste.price} บาท/${selectedWaste.unit}` : "-"}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-base md:text-sm">
               <span className="text-muted-foreground">น้ำหนัก:</span>
-              <span>{weight ? `${weight} ${selectedWaste?.unit || "กิโลกรัม"}` : "-"}</span>
+              <span className="font-medium">{weight ? `${weight} ${selectedWaste?.unit || "กิโลกรัม"}` : "-"}</span>
             </div>
             <Separator />
-            <div className="flex justify-between text-lg font-semibold">
+            <div className="flex justify-between text-xl md:text-lg font-bold">
               <span>ยอดรวม:</span>
-              <span className="text-primary">{totalAmount.toFixed(2)} บาท</span>
+              <span className="text-primary text-2xl md:text-xl">{totalAmount.toFixed(2)} บาท</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* ปุ่มบันทึก */}
-      <div className="flex justify-end gap-4">
-        <Button type="button" variant="outline" onClick={() => {
-          setSelectedDepartment("");
-          setSelectedPerson("");
-          setSelectedWasteType("");
-          setWeight("");
-          setTotalAmount(0);
-        }}>
+      <div className="flex flex-col md:flex-row justify-end gap-4">
+        <Button 
+          type="button" 
+          variant="outline" 
+          size="lg"
+          className="h-14 text-lg md:h-10 md:text-base order-2 md:order-1"
+          onClick={() => {
+            setSelectedDepartment("");
+            setSelectedPerson("");
+            setSelectedWasteType("");
+            setWeight("");
+            setTotalAmount(0);
+          }}
+        >
           ล้างข้อมูล
         </Button>
-        <Button type="submit" className="bg-gradient-primary">
-          <Receipt className="h-4 w-4 mr-2" />
+        <Button 
+          type="submit" 
+          size="lg"
+          className="bg-gradient-primary h-14 text-lg md:h-10 md:text-base order-1 md:order-2"
+        >
+          <Receipt className="h-6 w-6 mr-2 md:h-4 md:w-4" />
           บันทึกและออกใบเสร็จ
         </Button>
       </div>
     </form>
+    </div>
   );
 };
 
