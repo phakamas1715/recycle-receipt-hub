@@ -45,14 +45,16 @@ const PurchaseForm = () => {
   const [personSearch, setPersonSearch] = useState("");
   const receiptRef = useRef<HTMLDivElement>(null);
 
-  // Mock data
-  const wasteTypes: WasteType[] = [
-    { id: "1", name: "กระดาษ", price: 3.5, unit: "กิโลกรัม" },
-    { id: "2", name: "พลาสติก PET", price: 12, unit: "กิโลกรัม" },
-    { id: "3", name: "กระป๋องอลูมิเนียม", price: 45, unit: "กิโลกรัม" },
-    { id: "4", name: "แก้ว", price: 1.5, unit: "กิโลกรัม" },
-    { id: "5", name: "เหล็ก", price: 8, unit: "กิโลกรัม" },
-  ];
+  // Load waste types from storage
+  const [wasteTypes, setWasteTypes] = useState<WasteType[]>([]);
+  
+  useEffect(() => {
+    const loadWasteTypes = () => {
+      const stored = dataStorage.getWasteTypes();
+      setWasteTypes(stored);
+    };
+    loadWasteTypes();
+  }, []);
 
   const departments: Department[] = [
     { id: "1", name: "NSO - บริหารกลุ่มการพยาบาล" },

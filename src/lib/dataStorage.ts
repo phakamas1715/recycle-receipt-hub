@@ -19,6 +19,10 @@ export interface WasteType {
   name: string;
   price: number;
   unit: string;
+  category: string;
+  description?: string;
+  greenStandard: boolean;
+  hazardLevel: 'ต่ำ' | 'กลาง' | 'สูง';
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -121,11 +125,11 @@ class DataStorage {
       if (!data) {
         // Initialize with default waste types
         const defaultWasteTypes: WasteType[] = [
-          { id: "1", name: "กระดาษ", price: 3.5, unit: "กิโลกรัม", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "2", name: "พลาสติก PET", price: 12, unit: "กิโลกรัม", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "3", name: "กระป๋องอลูมิเนียม", price: 45, unit: "กิโลกรัม", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "4", name: "แก้ว", price: 1.5, unit: "กิโลกรัม", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "5", name: "เหล็ก", price: 8, unit: "กิโลกรัม", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "1", name: "กระดาษ A4/หนังสือพิมพ์", price: 3.5, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - กระดาษ", greenStandard: true, hazardLevel: "ต่ำ", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "2", name: "พลาสติก PET ขวดน้ำ", price: 12, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - พลาสติก", greenStandard: true, hazardLevel: "ต่ำ", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "3", name: "กระป๋องอลูมิเนียม", price: 45, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - โลหะ", greenStandard: true, hazardLevel: "ต่ำ", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "4", name: "แก้วใส", price: 1.5, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - แก้ว", greenStandard: true, hazardLevel: "ต่ำ", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "5", name: "เหล็กเศษ", price: 8, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - โลหะ", greenStandard: true, hazardLevel: "ต่ำ", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
         ];
         this.saveWasteTypes(defaultWasteTypes);
         return defaultWasteTypes;
@@ -141,11 +145,60 @@ class DataStorage {
     localStorage.setItem(this.STORAGE_KEYS.WASTE_TYPES, JSON.stringify(wasteTypes));
   }
 
+  saveWasteType(wasteType: WasteType): WasteType {
+    const wasteTypes = this.getWasteTypes();
+    const existingIndex = wasteTypes.findIndex(w => w.id === wasteType.id);
+    
+    const wasteTypeWithDefaults = {
+      ...wasteType,
+      isActive: wasteType.isActive ?? true,
+      createdAt: wasteType.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (existingIndex >= 0) {
+      wasteTypes[existingIndex] = wasteTypeWithDefaults;
+    } else {
+      wasteTypes.push(wasteTypeWithDefaults);
+    }
+    
+    this.saveWasteTypes(wasteTypes);
+    return wasteTypeWithDefaults;
+  }
+
+  updateWasteType(id: string, wasteType: WasteType): WasteType {
+    const wasteTypes = this.getWasteTypes();
+    const index = wasteTypes.findIndex(w => w.id === id);
+    
+    if (index >= 0) {
+      wasteTypes[index] = {
+        ...wasteType,
+        updatedAt: new Date().toISOString()
+      };
+      this.saveWasteTypes(wasteTypes);
+    }
+    
+    return wasteType;
+  }
+
+  deleteWasteType(id: string): boolean {
+    const wasteTypes = this.getWasteTypes();
+    const filteredWasteTypes = wasteTypes.filter(w => w.id !== id);
+    
+    if (filteredWasteTypes.length !== wasteTypes.length) {
+      this.saveWasteTypes(filteredWasteTypes);
+      return true;
+    }
+    
+    return false;
+  }
+
   addWasteType(wasteType: Omit<WasteType, 'id' | 'createdAt' | 'updatedAt'>): WasteType {
     const wasteTypes = this.getWasteTypes();
     const newWasteType: WasteType = {
       ...wasteType,
       id: `WT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -153,38 +206,6 @@ class DataStorage {
     wasteTypes.push(newWasteType);
     this.saveWasteTypes(wasteTypes);
     return newWasteType;
-  }
-
-  updateWasteType(id: string, updates: Partial<WasteType>): boolean {
-    try {
-      const wasteTypes = this.getWasteTypes();
-      const index = wasteTypes.findIndex(w => w.id === id);
-      if (index === -1) return false;
-
-      wasteTypes[index] = {
-        ...wasteTypes[index],
-        ...updates,
-        updatedAt: new Date().toISOString()
-      };
-
-      this.saveWasteTypes(wasteTypes);
-      return true;
-    } catch (error) {
-      console.error('Error updating waste type:', error);
-      return false;
-    }
-  }
-
-  deleteWasteType(id: string): boolean {
-    try {
-      const wasteTypes = this.getWasteTypes();
-      const filtered = wasteTypes.filter(w => w.id !== id);
-      this.saveWasteTypes(filtered);
-      return true;
-    } catch (error) {
-      console.error('Error deleting waste type:', error);
-      return false;
-    }
   }
 
   // Departments Management

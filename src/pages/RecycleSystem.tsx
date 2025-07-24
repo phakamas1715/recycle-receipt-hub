@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, FileText, Settings, Building2, BarChart3, Database } from "lucide-react";
+import { Recycle, FileText, Settings, Building2, BarChart3, Database, Package } from "lucide-react";
 import PurchaseForm from "@/components/PurchaseForm";
 import TransactionHistory from "@/components/TransactionHistory";
 import SystemSettings from "@/components/SystemSettings";
 import ConfigSystem from "@/components/ConfigSystem";
 import Dashboard from "@/components/Dashboard";
+import WasteTypeManager from "@/components/WasteTypeManager";
+import DepartmentDashboard from "@/components/DepartmentDashboard";
 
 
 const RecycleSystem = () => {
@@ -47,40 +49,47 @@ const RecycleSystem = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Increased font size for tab triggers and added hover effects */}
           {/* Increased padding (px-6 py-3) and text size (text-lg md:text-xl) for larger buttons */}
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger
               value="purchase"
-              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              <Recycle className="h-6 w-6" /> {/* Increased icon size */}
+              <Recycle className="h-5 w-5" />
               บันทึกรับซื้อ
             </TabsTrigger>
             <TabsTrigger
               value="history"
-              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              <FileText className="h-6 w-6" /> {/* Increased icon size */}
+              <FileText className="h-5 w-5" />
               รายการทั้งหมด
             </TabsTrigger>
             <TabsTrigger
               value="dashboard"
-              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              <BarChart3 className="h-6 w-6" /> {/* Increased icon size */}
+              <BarChart3 className="h-5 w-5" />
               แดชบอร์ด
             </TabsTrigger>
             <TabsTrigger
-              value="config"
-              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              value="departments"
+              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              <Database className="h-6 w-6" /> {/* Increased icon size */}
-              เชื่อมต่อ API
+              <Building2 className="h-5 w-5" />
+              ข้อมูลแผนก
+            </TabsTrigger>
+            <TabsTrigger
+              value="waste-types"
+              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <Package className="h-5 w-5" />
+              ประเภทขยะ
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="flex items-center gap-2 px-6 py-3 text-lg md:text-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              <Settings className="h-6 w-6" /> {/* Increased icon size */}
+              <Settings className="h-5 w-5" />
               ตั้งค่าระบบ
             </TabsTrigger>
           </TabsList>
@@ -127,8 +136,25 @@ const RecycleSystem = () => {
             <Dashboard />
           </TabsContent>
 
-          <TabsContent value="config" className="space-y-6">
-            <ConfigSystem />
+          <TabsContent value="departments" className="space-y-6">
+            <DepartmentDashboard />
+          </TabsContent>
+
+          <TabsContent value="waste-types" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+                  <Package className="h-6 w-6 text-primary" />
+                  จัดการประเภทขยะรีไซเคิล
+                </CardTitle>
+                <CardDescription className="text-base md:text-lg">
+                  เพิ่ม แก้ไข หรือลบประเภทขยะตามมาตรฐาน Green & Clean Hospital
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WasteTypeManager />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
