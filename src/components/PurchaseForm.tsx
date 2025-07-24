@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircle } from "lucide-react";
+import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircle, Search } from "lucide-react";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReceiptView from './ReceiptView';
@@ -39,6 +40,8 @@ const PurchaseForm = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [lastTransaction, setLastTransaction] = useState<any>(null);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [departmentSearch, setDepartmentSearch] = useState("");
+  const [wasteTypeSearch, setWasteTypeSearch] = useState("");
   const receiptRef = useRef<HTMLDivElement>(null);
 
   // Mock data - ในระบบจริงจะดึงจาก Google Sheets
@@ -105,6 +108,14 @@ const PurchaseForm = () => {
     { id: "1", name: "นายสมชาย ใจดี", phone: "081-234-5678" },
     { id: "2", name: "นางสาวสมหญิง รักดี", phone: "082-345-6789" },
   ];
+
+  const filteredDepartments = departments.filter(dept =>
+    dept.name.toLowerCase().includes(departmentSearch.toLowerCase())
+  );
+
+  const filteredWasteTypes = wasteTypes.filter(waste =>
+    waste.name.toLowerCase().includes(wasteTypeSearch.toLowerCase())
+  );
 
   const selectedWaste = wasteTypes.find(w => w.id === selectedWasteType);
 
@@ -219,6 +230,8 @@ const PurchaseForm = () => {
     setSelectedWasteType("");
     setWeight("");
     setTotalAmount(0);
+    setDepartmentSearch("");
+    setWasteTypeSearch("");
   };
 
   if (showReceipt && lastTransaction) {
@@ -287,12 +300,26 @@ const PurchaseForm = () => {
               <SelectTrigger className="h-16 text-xl font-medium">
                 <SelectValue placeholder="👆 เลือกแผนกของคุณ" />
               </SelectTrigger>
-              <SelectContent className="max-h-80">
-                {departments.map((dept) => (
+              <SelectContent className="max-h-[500px]">
+                <div className="relative px-2 pt-1 pb-2">
+                  <Search className="absolute left-4 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="ค้นหาแผนก..."
+                    className="pl-10 h-10"
+                    value={departmentSearch}
+                    onChange={(e) => setDepartmentSearch(e.target.value)}
+                  />
+                </div>
+                {filteredDepartments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id} className="h-12 text-lg">
                     {dept.name}
                   </SelectItem>
                 ))}
+                {filteredDepartments.length === 0 && (
+                  <div className="py-4 text-center text-muted-foreground">
+                    ไม่พบแผนกที่ค้นหา
+                  </div>
+                )}
               </SelectContent>
             </Select>
           </CardContent>
@@ -353,8 +380,17 @@ const PurchaseForm = () => {
               <SelectTrigger className="h-16 text-xl font-medium">
                 <SelectValue placeholder="👆 เลือกประเภทขยะ" />
               </SelectTrigger>
-              <SelectContent className="max-h-80">
-                {wasteTypes.map((waste) => (
+              <SelectContent className="max-h-[500px]">
+                <div className="relative px-2 pt-1 pb-2">
+                  <Search className="absolute left-4 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="ค้นหาประเภทขยะ..."
+                    className="pl-10 h-10"
+                    value={wasteTypeSearch}
+                    onChange={(e) => setWasteTypeSearch(e.target.value)}
+                  />
+                </div>
+                {filteredWasteTypes.map((waste) => (
                   <SelectItem key={waste.id} value={waste.id} className="h-16">
                     <div className="flex justify-between items-center w-full">
                       <span className="text-lg font-medium">{waste.name}</span>
@@ -364,6 +400,11 @@ const PurchaseForm = () => {
                     </div>
                   </SelectItem>
                 ))}
+                {filteredWasteTypes.length === 0 && (
+                  <div className="py-4 text-center text-muted-foreground">
+                    ไม่พบประเภทขยะที่ค้นหา
+                  </div>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -485,6 +526,8 @@ const PurchaseForm = () => {
             setSelectedWasteType("");
             setWeight("");
             setTotalAmount(0);
+            setDepartmentSearch("");
+            setWasteTypeSearch("");
           }}
         >
           🗑️ ล้างข้อมูลทั้งหมด
