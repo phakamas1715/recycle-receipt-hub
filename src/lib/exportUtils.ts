@@ -16,39 +16,43 @@ export class ExportUtils {
       XLSX.utils.book_append_sheet(workbook, summarySheet, 'สรุปยอดรวม');
       
       // Transactions Sheet
-      const transactionData = transactions.map((t, index) => ({
-        'ลำดับ': index + 1,
-        'เลขที่ใบเสร็จ': t.receiptNumber,
-        'วันที่': (() => {
-          try {
-            const date = new Date(t.date);
-            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
-          } catch {
-            return 'วันที่ไม่ถูกต้อง';
-          }
-        })(),
-        'เวลา': t.time,
-        'ประเภทผู้ขาย': t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป',
-        'ผู้ขาย': t.seller,
-        'ประเภทขยะ': t.wasteType,
-        'น้ำหนัก (กก.)': t.weight,
-        'ราคาต่อหน่วย (บาท)': t.pricePerUnit,
-        'ยอดรวม (บาท)': t.totalAmount,
-        'วันที่บันทึก': (() => {
-          try {
-            const date = new Date(t.createdAt);
-            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            });
-          } catch {
-            return 'วันที่ไม่ถูกต้อง';
-          }
-        })()
-      }));
+      const transactionData = transactions.flatMap((t, index) => 
+        t.items.map((item, itemIndex) => ({
+          'ลำดับ': itemIndex === 0 ? index + 1 : '',
+          'เลขที่ใบเสร็จ': itemIndex === 0 ? t.receiptNumber : '',
+          'วันที่': itemIndex === 0 ? (() => {
+            try {
+              const date = new Date(t.date);
+              return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
+            } catch {
+              return 'วันที่ไม่ถูกต้อง';
+            }
+          })() : '',
+          'เวลา': itemIndex === 0 ? t.time : '',
+          'ประเภทผู้ขาย': itemIndex === 0 ? (t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
+          'ผู้ขาย': itemIndex === 0 ? t.seller : '',
+          'ประเภทขยะ': item.wasteTypeName,
+          'น้ำหนัก (กก.)': item.weight,
+          'ราคาต่อหน่วย (บาท)': item.pricePerUnit,
+          'ยอดย่อย (บาท)': item.amount,
+          'น้ำหนักรวม (กก.)': itemIndex === 0 ? t.totalWeight : '',
+          'ยอดรวม (บาท)': itemIndex === 0 ? t.totalAmount : '',
+          'วันที่บันทึก': itemIndex === 0 ? (() => {
+            try {
+              const date = new Date(t.createdAt);
+              return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            } catch {
+              return 'วันที่ไม่ถูกต้อง';
+            }
+          })() : ''
+        }))
+      );
       
       const transactionSheet = XLSX.utils.json_to_sheet(transactionData);
       XLSX.utils.book_append_sheet(workbook, transactionSheet, 'รายการทั้งหมด');
@@ -80,25 +84,28 @@ export class ExportUtils {
   // Export to CSV
   static exportToCSV(transactions: Transaction[], filename?: string): void {
     try {
-      const csvData = transactions.map((t, index) => ({
-        'ลำดับ': index + 1,
-        'เลขที่ใบเสร็จ': t.receiptNumber,
-        'วันที่': (() => {
-          try {
-            const date = new Date(t.date);
-            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
-          } catch {
-            return 'วันที่ไม่ถูกต้อง';
-          }
-        })(),
-        'เวลา': t.time,
-        'ประเภทผู้ขาย': t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป',
-        'ผู้ขาย': t.seller,
-        'ประเภทขยะ': t.wasteType,
-        'น้ำหนัก (กก.)': t.weight,
-        'ราคาต่อหน่วย (บาท)': t.pricePerUnit,
-        'ยอดรวม (บาท)': t.totalAmount
-      }));
+      const csvData = transactions.flatMap((t, index) => 
+        t.items.map((item, itemIndex) => ({
+          'ลำดับ': itemIndex === 0 ? index + 1 : '',
+          'เลขที่ใบเสร็จ': itemIndex === 0 ? t.receiptNumber : '',
+          'วันที่': itemIndex === 0 ? (() => {
+            try {
+              const date = new Date(t.date);
+              return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
+            } catch {
+              return 'วันที่ไม่ถูกต้อง';
+            }
+          })() : '',
+          'เวลา': itemIndex === 0 ? t.time : '',
+          'ประเภทผู้ขาย': itemIndex === 0 ? (t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
+          'ผู้ขาย': itemIndex === 0 ? t.seller : '',
+          'ประเภทขยะ': item.wasteTypeName,
+          'น้ำหนัก (กก.)': item.weight,
+          'ราคาต่อหน่วย (บาท)': item.pricePerUnit,
+          'ยอดย่อย (บาท)': item.amount,
+          'ยอดรวม (บาท)': itemIndex === 0 ? t.totalAmount : ''
+        }))
+      );
       
       const worksheet = XLSX.utils.json_to_sheet(csvData);
       const csv = XLSX.utils.sheet_to_csv(worksheet);
@@ -209,7 +216,7 @@ export class ExportUtils {
   // Helper methods for generating analysis data
   private static generateSummaryData(transactions: Transaction[]) {
     const totalAmount = transactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalWeight = transactions.reduce((sum, t) => sum + t.weight, 0);
+    const totalWeight = transactions.reduce((sum, t) => sum + t.totalWeight, 0);
     
     return [
       { 'รายการ': 'จำนวนรายการทั้งหมด', 'ค่า': transactions.length, 'หน่วย': 'รายการ' },
@@ -222,12 +229,14 @@ export class ExportUtils {
   
   private static generateWasteTypeAnalysis(transactions: Transaction[]) {
     const analysis = transactions.reduce((acc, t) => {
-      if (!acc[t.wasteType]) {
-        acc[t.wasteType] = { count: 0, weight: 0, amount: 0 };
-      }
-      acc[t.wasteType].count++;
-      acc[t.wasteType].weight += t.weight;
-      acc[t.wasteType].amount += t.totalAmount;
+      t.items.forEach(item => {
+        if (!acc[item.wasteTypeName]) {
+          acc[item.wasteTypeName] = { count: 0, weight: 0, amount: 0 };
+        }
+        acc[item.wasteTypeName].count++;
+        acc[item.wasteTypeName].weight += item.weight;
+        acc[item.wasteTypeName].amount += item.amount;
+      });
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
     
@@ -248,7 +257,7 @@ export class ExportUtils {
         acc[t.seller] = { count: 0, weight: 0, amount: 0, type: t.sellerType };
       }
       acc[t.seller].count++;
-      acc[t.seller].weight += t.weight;
+      acc[t.seller].weight += t.totalWeight;
       acc[t.seller].amount += t.totalAmount;
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number; type: string }>);
@@ -273,7 +282,7 @@ export class ExportUtils {
           acc[month] = { count: 0, weight: 0, amount: 0 };
         }
         acc[month].count++;
-        acc[month].weight += t.weight;
+        acc[month].weight += t.totalWeight;
         acc[month].amount += t.totalAmount;
         return acc;
       } catch {
@@ -282,7 +291,7 @@ export class ExportUtils {
           acc[month] = { count: 0, weight: 0, amount: 0 };
         }
         acc[month].count++;
-        acc[month].weight += t.weight;
+        acc[month].weight += t.totalWeight;
         acc[month].amount += t.totalAmount;
         return acc;
       }

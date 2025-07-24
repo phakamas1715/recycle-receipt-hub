@@ -37,7 +37,7 @@ const TransactionHistory = () => {
     const matchesSearch = 
       transaction.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.seller.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.wasteType.toLowerCase().includes(searchTerm.toLowerCase());
+      transaction.items.some(item => item.wasteTypeName.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesSellerType = filterSellerType === "all" || transaction.sellerType === filterSellerType;
     
@@ -65,7 +65,7 @@ const TransactionHistory = () => {
   // Calculate statistics
   const totalTransactions = filteredTransactions.length;
   const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
-  const totalWeight = filteredTransactions.reduce((sum, t) => sum + t.weight, 0);
+  const totalWeight = filteredTransactions.reduce((sum, t) => sum + t.totalWeight, 0);
 
   // Export functions
   const handleExportExcel = () => {
@@ -359,9 +359,9 @@ const TransactionHistory = () => {
                   <TableHead className="text-base">วันที่</TableHead>
                   <TableHead className="text-base">เวลา</TableHead>
                   <TableHead className="text-base">ผู้ขาย</TableHead>
-                  <TableHead className="text-base">ประเภทขยะ</TableHead>
-                  <TableHead className="text-right text-base">น้ำหนัก (กก.)</TableHead>
-                  <TableHead className="text-right text-base">ราคา/หน่วย</TableHead>
+                  <TableHead className="text-base">รายการขยะ</TableHead>
+                  <TableHead className="text-right text-base">น้ำหนักรวม (กก.)</TableHead>
+                  <TableHead className="text-right text-base">จำนวนรายการ</TableHead>
                   <TableHead className="text-right text-base">ยอดรวม</TableHead>
                   <TableHead className="text-base">การดำเนินการ</TableHead>
                 </TableRow>
@@ -398,9 +398,17 @@ const TransactionHistory = () => {
                           </Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="text-base">{transaction.wasteType}</TableCell>
-                      <TableCell className="text-right text-base font-medium">{transaction.weight.toFixed(1)}</TableCell>
-                      <TableCell className="text-right text-base">{transaction.pricePerUnit.toFixed(2)}</TableCell>
+                      <TableCell className="text-base">
+                        <div className="space-y-1">
+                          {transaction.items.map((item, index) => (
+                            <div key={index} className="text-sm">
+                              {item.wasteTypeName} ({item.weight} กก.)
+                            </div>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right text-base font-medium">{transaction.totalWeight.toFixed(1)}</TableCell>
+                      <TableCell className="text-right text-base">{transaction.items.length}</TableCell>
                       <TableCell className="text-right font-medium text-base text-primary">
                         {transaction.totalAmount.toFixed(2)} บาท
                       </TableCell>

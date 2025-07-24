@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircle, Search } from "lucide-react";
+import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircle, Search, ShoppingCart, Trash2 } from "lucide-react";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReceiptView from "./ReceiptView";
@@ -321,18 +321,18 @@ const PurchaseForm = () => {
                 </div>
                 
                 <div class="detail-row">
-                  <span class="detail-label">ประเภทขยะ:</span>
-                  <span>${lastTransaction.wasteType}</span>
+                  <span class="detail-label">รายการขยะ:</span>
                 </div>
+                ${lastTransaction.items.map(item => `
+                <div class="detail-row">
+                  <span>${item.wasteTypeName}</span>
+                  <span>${item.weight} กก. × ${item.pricePerUnit} = ${item.amount.toFixed(2)} บาท</span>
+                </div>
+                `).join('')}
                 
                 <div class="detail-row">
-                  <span class="detail-label">น้ำหนัก:</span>
-                  <span>${lastTransaction.weight} ${selectedWaste?.unit}</span>
-                </div>
-                
-                <div class="detail-row">
-                  <span class="detail-label">ราคาต่อหน่วย:</span>
-                  <span>${lastTransaction.pricePerUnit} บาท/${selectedWaste?.unit}</span>
+                  <span class="detail-label">น้ำหนักรวม:</span>
+                  <span>${lastTransaction.totalWeight} กิโลกรัม</span>
                 </div>
               </div>
               
@@ -372,16 +372,17 @@ const PurchaseForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedWasteType || !weight || (!selectedDepartment && !selectedPerson)) {
+    if (cartItems.length === 0 || (!selectedDepartment && !selectedPerson)) {
       toast({
         title: "ข้อมูลไม่ครบถ้วน",
-        description: "กรุณากรอกข้อมูลให้ครบทุกช่อง",
+        description: "กรุณาเพิ่มรายการขยะและเลือกผู้ขาย",
         variant: "destructive",
       });
       return;
     }
 
     const receiptNumber = `RCP-${String(Date.now()).slice(-5).padStart(5, '0')}`;
+    const totalWeight = cartItems.reduce((sum, item) => sum + item.weight, 0);
     
     const transactionToSave = {
       receiptNumber,
@@ -391,9 +392,8 @@ const PurchaseForm = () => {
       seller: sellerType === "department" 
         ? departments.find(d => d.id === selectedDepartment)?.name || ""
         : persons.find(p => p.id === selectedPerson)?.name || "",
-      wasteType: selectedWaste?.name || "",
-      weight: parseFloat(weight),
-      pricePerUnit: selectedWaste?.price || 0,
+      items: cartItems,
+      totalWeight,
       totalAmount,
     };
 
@@ -413,6 +413,7 @@ const PurchaseForm = () => {
     setSelectedPerson("");
     setSelectedWasteType("");
     setWeight("");
+    setCartItems([]);
     setTotalAmount(0);
     setDepartmentSearch("");
     setWasteTypeSearch("");
@@ -677,6 +678,17 @@ const PurchaseForm = () => {
                   +10 กก.
                 </Button>
               </div>
+              
+              {selectedWaste && weight && (
+                <Button
+                  type="button"
+                  onClick={addToCart}
+                  className="w-full mt-4"
+                  size="lg"
+                >
+                  เพิ่มลงตะกร้า - {(parseFloat(weight || "0") * selectedWaste.price).toFixed(2)} บาท
+                </Button>
+              )}
             </div>
           </div>
 

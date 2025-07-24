@@ -4,15 +4,22 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Share2 } from "lucide-react";
 
+interface ReceiptItem {
+  wasteTypeId: string;
+  wasteTypeName: string;
+  weight: number;
+  pricePerUnit: number;
+  amount: number;
+}
+
 interface ReceiptData {
   receiptNumber: string;
   date: string;
   time: string;
   sellerType: string;
   seller: string;
-  wasteType: string;
-  weight: number;
-  pricePerUnit: number;
+  items: ReceiptItem[];
+  totalWeight: number;
   totalAmount: number;
 }
 
@@ -106,20 +113,36 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
             <div className="space-y-3">
               <div className="text-sm text-muted-foreground">รายละเอียดการรับซื้อ:</div>
               
-              <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">ประเภทขยะ:</span>
-                  <span className="font-medium">{data.wasteType}</span>
-                </div>
+              <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+                {data.items.map((item, index) => (
+                  <div key={index} className="border-b border-muted pb-2 last:border-b-0 last:pb-0">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">ประเภทขยะ:</span>
+                      <span className="font-medium">{item.wasteTypeName}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">น้ำหนัก:</span>
+                      <span className="font-medium">{item.weight} กิโลกรัม</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">ราคาต่อหน่วย:</span>
+                      <span className="font-medium">{item.pricePerUnit} บาท/กก.</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">ยอดย่อย:</span>
+                      <span className="font-medium text-primary">{item.amount.toFixed(2)} บาท</span>
+                    </div>
+                  </div>
+                ))}
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">น้ำหนัก:</span>
-                  <span className="font-medium">{data.weight} กิโลกรัม</span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">ราคาต่อหน่วย:</span>
-                  <span className="font-medium">{data.pricePerUnit} บาท/กก.</span>
+                <div className="pt-2 border-t border-muted">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">น้ำหนักรวม:</span>
+                    <span className="font-medium">{data.totalWeight} กิโลกรัม</span>
+                  </div>
                 </div>
               </div>
             </div>

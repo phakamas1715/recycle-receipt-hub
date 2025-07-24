@@ -69,17 +69,19 @@ const DepartmentDashboard = () => {
 
     // Calculate basic stats
     const totalAmount = departmentTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalWeight = departmentTransactions.reduce((sum, t) => sum + t.weight, 0);
+    const totalWeight = departmentTransactions.reduce((sum, t) => sum + t.totalWeight, 0);
     const totalTransactions = departmentTransactions.length;
 
     // Calculate waste type distribution
     const wasteTypeStats: { [key: string]: { weight: number; amount: number } } = {};
     departmentTransactions.forEach(t => {
-      if (!wasteTypeStats[t.wasteType]) {
-        wasteTypeStats[t.wasteType] = { weight: 0, amount: 0 };
-      }
-      wasteTypeStats[t.wasteType].weight += t.weight;
-      wasteTypeStats[t.wasteType].amount += t.totalAmount;
+      t.items.forEach(item => {
+        if (!wasteTypeStats[item.wasteTypeName]) {
+          wasteTypeStats[item.wasteTypeName] = { weight: 0, amount: 0 };
+        }
+        wasteTypeStats[item.wasteTypeName].weight += item.weight;
+        wasteTypeStats[item.wasteTypeName].amount += item.amount;
+      });
     });
 
     const topWasteTypes = Object.entries(wasteTypeStats)
@@ -100,7 +102,7 @@ const DepartmentDashboard = () => {
           monthlyData[monthKey] = { amount: 0, weight: 0 };
         }
         monthlyData[monthKey].amount += t.totalAmount;
-        monthlyData[monthKey].weight += t.weight;
+        monthlyData[monthKey].weight += t.totalWeight;
       } catch {
         return;
       }
@@ -117,8 +119,10 @@ const DepartmentDashboard = () => {
     // Calculate Green Score (ตามมาตรฐาน Green & Clean Hospital)
     const wasteTypes = dataStorage.getWasteTypes();
     const greenTransactions = departmentTransactions.filter(t => {
-      const wasteType = wasteTypes.find(w => w.name === t.wasteType);
-      return wasteType?.greenStandard;
+      return t.items.some(item => {
+        const wasteType = wasteTypes.find(w => w.name === item.wasteTypeName);
+        return wasteType?.greenStandard;
+      });
     });
     
     const greenScore = totalTransactions > 0 ? Math.round((greenTransactions.length / totalTransactions) * 100) : 0;
@@ -160,13 +164,15 @@ const DepartmentDashboard = () => {
     
     const stats = Object.entries(departmentGroups).map(([departmentName, deptTransactions]) => {
       const totalAmount = deptTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
-      const totalWeight = deptTransactions.reduce((sum, t) => sum + t.weight, 0);
+      const totalWeight = deptTransactions.reduce((sum, t) => sum + t.totalWeight, 0);
       const totalTransactions = deptTransactions.length;
 
       // Calculate Green Score
       const greenTransactions = deptTransactions.filter(t => {
-        const wasteType = wasteTypes.find(w => w.name === t.wasteType);
-        return wasteType?.greenStandard;
+        return t.items.some(item => {
+          const wasteType = wasteTypes.find(w => w.name === item.wasteTypeName);
+          return wasteType?.greenStandard;
+        });
       });
       
       const greenScore = totalTransactions > 0 ? Math.round((greenTransactions.length / totalTransactions) * 100) : 0;

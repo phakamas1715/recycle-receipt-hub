@@ -344,16 +344,18 @@ class DataStorage {
     const transactions = this.getTransactions();
     const totalTransactions = transactions.length;
     const totalAmount = transactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalWeight = transactions.reduce((sum, t) => sum + t.weight, 0);
+    const totalWeight = transactions.reduce((sum, t) => sum + t.totalWeight, 0);
     
     // Group by waste type
     const wasteTypeStats = transactions.reduce((acc, t) => {
-      if (!acc[t.wasteType]) {
-        acc[t.wasteType] = { count: 0, weight: 0, amount: 0 };
-      }
-      acc[t.wasteType].count++;
-      acc[t.wasteType].weight += t.weight;
-      acc[t.wasteType].amount += t.totalAmount;
+      t.items.forEach(item => {
+        if (!acc[item.wasteTypeName]) {
+          acc[item.wasteTypeName] = { count: 0, weight: 0, amount: 0 };
+        }
+        acc[item.wasteTypeName].count++;
+        acc[item.wasteTypeName].weight += item.weight;
+        acc[item.wasteTypeName].amount += item.amount;
+      });
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
 
@@ -363,7 +365,7 @@ class DataStorage {
         acc[t.seller] = { count: 0, weight: 0, amount: 0 };
       }
       acc[t.seller].count++;
-      acc[t.seller].weight += t.weight;
+      acc[t.seller].weight += t.totalWeight;
       acc[t.seller].amount += t.totalAmount;
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
