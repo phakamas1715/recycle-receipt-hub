@@ -73,16 +73,23 @@ const Dashboard = () => {
     const monthlyData: { [key: string]: { amount: number; weight: number; transactions: number } } = {};
     
     transactions.forEach(t => {
-      const date = new Date(t.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthName = date.toLocaleDateString('th-TH', { month: 'short' });
+      try {
+        const date = new Date(t.date);
+        if (isNaN(date.getTime())) return; // Skip invalid dates
+        
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthName = date.toLocaleDateString('th-TH', { month: 'short' });
       
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { amount: 0, weight: 0, transactions: 0 };
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { amount: 0, weight: 0, transactions: 0 };
+        }
+        monthlyData[monthKey].amount += t.totalAmount;
+        monthlyData[monthKey].weight += t.weight;
+        monthlyData[monthKey].transactions++;
+      } catch {
+        // Skip invalid date entries
+        return;
       }
-      monthlyData[monthKey].amount += t.totalAmount;
-      monthlyData[monthKey].weight += t.weight;
-      monthlyData[monthKey].transactions++;
     });
 
     return Object.entries(monthlyData)
@@ -98,19 +105,41 @@ const Dashboard = () => {
     const dailyData: { [key: string]: { amount: number; transactions: number } } = {};
     
     transactions.forEach(t => {
-      const dateKey = t.date;
-      if (!dailyData[dateKey]) {
-        dailyData[dateKey] = { amount: 0, transactions: 0 };
+      try {
+        // Validate date first
+        const date = new Date(t.date);
+        if (isNaN(date.getTime())) return; // Skip invalid dates
+        
+        const dateKey = t.date;
+        if (!dailyData[dateKey]) {
+          dailyData[dateKey] = { amount: 0, transactions: 0 };
+        }
+        dailyData[dateKey].amount += t.totalAmount;
+        dailyData[dateKey].transactions++;
+      } catch {
+        // Skip invalid date entries
+        return;
       }
-      dailyData[dateKey].amount += t.totalAmount;
-      dailyData[dateKey].transactions++;
     });
 
     return Object.entries(dailyData)
-      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .sort(([a], [b]) => {
+        try {
+          return new Date(a).getTime() - new Date(b).getTime();
+        } catch {
+          return 0;
+        }
+      })
       .slice(-7)
       .map(([date, data]) => ({
-        date: new Date(date).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' }),
+        date: (() => {
+          try {
+            const d = new Date(date);
+            return isNaN(d.getTime()) ? 'ไม่ระบุ' : d.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' });
+          } catch {
+            return 'ไม่ระบุ';
+          }
+        })(),
         ...data
       }));
   };

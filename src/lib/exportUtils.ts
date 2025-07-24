@@ -19,7 +19,14 @@ export class ExportUtils {
       const transactionData = transactions.map((t, index) => ({
         'ลำดับ': index + 1,
         'เลขที่ใบเสร็จ': t.receiptNumber,
-        'วันที่': new Date(t.date).toLocaleDateString('th-TH'),
+        'วันที่': (() => {
+          try {
+            const date = new Date(t.date);
+            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
+          } catch {
+            return 'วันที่ไม่ถูกต้อง';
+          }
+        })(),
         'เวลา': t.time,
         'ประเภทผู้ขาย': t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป',
         'ผู้ขาย': t.seller,
@@ -27,13 +34,20 @@ export class ExportUtils {
         'น้ำหนัก (กก.)': t.weight,
         'ราคาต่อหน่วย (บาท)': t.pricePerUnit,
         'ยอดรวม (บาท)': t.totalAmount,
-        'วันที่บันทึก': new Date(t.createdAt).toLocaleDateString('th-TH', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
+        'วันที่บันทึก': (() => {
+          try {
+            const date = new Date(t.createdAt);
+            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          } catch {
+            return 'วันที่ไม่ถูกต้อง';
+          }
+        })()
       }));
       
       const transactionSheet = XLSX.utils.json_to_sheet(transactionData);
@@ -69,7 +83,14 @@ export class ExportUtils {
       const csvData = transactions.map((t, index) => ({
         'ลำดับ': index + 1,
         'เลขที่ใบเสร็จ': t.receiptNumber,
-        'วันที่': new Date(t.date).toLocaleDateString('th-TH'),
+        'วันที่': (() => {
+          try {
+            const date = new Date(t.date);
+            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
+          } catch {
+            return 'วันที่ไม่ถูกต้อง';
+          }
+        })(),
         'เวลา': t.time,
         'ประเภทผู้ขาย': t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป',
         'ผู้ขาย': t.seller,
@@ -245,14 +266,26 @@ export class ExportUtils {
   
   private static generateMonthlyReport(transactions: Transaction[]) {
     const monthlyData = transactions.reduce((acc, t) => {
-      const month = new Date(t.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
-      if (!acc[month]) {
-        acc[month] = { count: 0, weight: 0, amount: 0 };
+      try {
+        const date = new Date(t.date);
+        const month = isNaN(date.getTime()) ? 'ไม่ระบุเดือน' : date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+        if (!acc[month]) {
+          acc[month] = { count: 0, weight: 0, amount: 0 };
+        }
+        acc[month].count++;
+        acc[month].weight += t.weight;
+        acc[month].amount += t.totalAmount;
+        return acc;
+      } catch {
+        const month = 'ไม่ระบุเดือน';
+        if (!acc[month]) {
+          acc[month] = { count: 0, weight: 0, amount: 0 };
+        }
+        acc[month].count++;
+        acc[month].weight += t.weight;
+        acc[month].amount += t.totalAmount;
+        return acc;
       }
-      acc[month].count++;
-      acc[month].weight += t.weight;
-      acc[month].amount += t.totalAmount;
-      return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
     
     return Object.entries(monthlyData).map(([month, data]) => ({

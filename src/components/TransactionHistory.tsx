@@ -41,7 +41,20 @@ const TransactionHistory = () => {
     
     const matchesSellerType = filterSellerType === "all" || transaction.sellerType === filterSellerType;
     
-    const transactionDate = new Date(transaction.date).toISOString().split('T')[0];
+    // Safely handle date parsing
+    let transactionDate: string;
+    try {
+      const date = new Date(transaction.date);
+      if (isNaN(date.getTime())) {
+        // If date is invalid, use today's date as fallback
+        transactionDate = new Date().toISOString().split('T')[0];
+      } else {
+        transactionDate = date.toISOString().split('T')[0];
+      }
+    } catch {
+      transactionDate = new Date().toISOString().split('T')[0];
+    }
+    
     const matchesDateRange = 
       (!filterDateFrom || transactionDate >= filterDateFrom) &&
       (!filterDateTo || transactionDate <= filterDateTo);
@@ -367,7 +380,14 @@ const TransactionHistory = () => {
                         {transaction.receiptNumber}
                       </TableCell>
                       <TableCell className="text-base">
-                        {new Date(transaction.date).toLocaleDateString('th-TH')}
+                        {(() => {
+                          try {
+                            const date = new Date(transaction.date);
+                            return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH');
+                          } catch {
+                            return 'วันที่ไม่ถูกต้อง';
+                          }
+                        })()}
                       </TableCell>
                       <TableCell className="text-base">{transaction.time}</TableCell>
                       <TableCell className="text-base">

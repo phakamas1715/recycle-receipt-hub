@@ -345,7 +345,7 @@ const PurchaseForm = () => {
     
     const transactionToSave = {
       receiptNumber,
-      date: new Date().toLocaleDateString('th-TH'),
+      date: new Date().toISOString().split('T')[0], // Use ISO format YYYY-MM-DD
       time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
       sellerType,
       seller: sellerType === "department" 
