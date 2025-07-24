@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircle, Search } from "lucide-react";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import ReceiptView from "./ReceiptView";
 
 interface WasteType {
   id: string;
@@ -53,8 +54,8 @@ const PurchaseForm = () => {
 
   const departments: Department[] = [
     { id: "1", name: "NSO - บริหารกลุ่มการพยาบาล" },
-    { id: "2", name: "ER - งานการพยาบาลผู้ป่วยอุบัติเหตุฉุกเฉิน" },
-    { id: "3", name: "OR - งานการพยาบาลผู้ป่วยผ่าตัด" },
+    { id: "2", name: "ER - งานการพยาบาลผู้ป่วยอุบัติเหตุฉุกเฉินและนิติเวช" },
+    { id: "3", name: "OR - งานการพยาบาลผู้ป่วยผ่าตัดและวิสัญญีพยาบาล" },
     { id: "4", name: "LR - งานการพยาบาลผู้คลอด" },
     { id: "5", name: "งานการพยาบาลโรคไต" },
     { id: "6", name: "WARD1 - งานการพยาบาลผู้ป่วยใน ชาย" },
@@ -62,6 +63,44 @@ const PurchaseForm = () => {
     { id: "8", name: "WARD2 - งานการพยาบาลผู้ป่วยใน หญิง" },
     { id: "9", name: "OPD - งานการพยาบาลผู้ป่วยนอก" },
     { id: "10", name: "PSY - จิตเวชและยาเสพติด" },
+    { id: "11", name: "งานเคลื่อนย้ายผู้ป่วย" },
+    { id: "12", name: "CSU - งานการพยาบาลหน่วยควบคุมการติดเชื้อและงานจ่ายกลาง" },
+    { id: "13", name: "MNU - งานโภชนศาสตร์" },
+    { id: "14", name: "MAN - ฝ่ายบริหารงานทั่วไป" },
+    { id: "15", name: "MON - งานการเงิน" },
+    { id: "16", name: "ART - งานพัสดุ" },
+    { id: "17", name: "BOO - งานธุรการ" },
+    { id: "18", name: "AMB - งานยานพาหนะ" },
+    { id: "19", name: "GAR - งานภูมิทัศน์" },
+    { id: "20", name: "CLC - งานซักฟอก" },
+    { id: "21", name: "SEC - งานรักษาความปลอดภัย" },
+    { id: "22", name: "CLE - งานทำความสะอาด" },
+    { id: "23", name: "MED - งานเวชปฏิบัติทั่วไป" },
+    { id: "24", name: "XRA - งานรังสีวิทยา" },
+    { id: "25", name: "LAB - งานเทคนิคการแพทย์" },
+    { id: "26", name: "TTM - งานแพทย์แผนไทย" },
+    { id: "27", name: "PLA - แผนงานและประเมินผล" },
+    { id: "28", name: "COM - งานศูนย์คอมพิวเตอร์" },
+    { id: "29", name: "HAC - งานศูนย์ประกันสุขภาพ" },
+    { id: "30", name: "MRD - งานเวชระเบียน" },
+    { id: "31", name: "FMC - กลุ่มงานบริการด้านปฐมภูมิและองค์รวม" },
+    { id: "32", name: "PHA - ฝ่ายเภสัชกรรมชุมชน" },
+    { id: "33", name: "RHD - ฝ่ายเวชกรรมฟื้นฟู" },
+    { id: "34", name: "FUN - งานทันตกรรม" },
+    { id: "35", name: "HED - งานสุขศึกษาและประชาสัมพันธ์" },
+    { id: "36", name: "PO - การแพทย์" },
+    { id: "37", name: "NCD - งานการพยาบาลผู้ป่วยโรคไม่ติดต่อเรื้อรัง" },
+    { id: "38", name: "TEC - งานซ่อมบำรุง" },
+    { id: "39", name: "ES - งานสุขาภิบาล" },
+    { id: "40", name: "EYE - งานการพยาบาลผู้ป่วยจักษุ" },
+    { id: "41", name: "WARD4 - งานการพยาบาลผู้ป่วยใน พิเศษ" },
+    { id: "42", name: "PC - งานพยาบาลการดูแลผู้ป่วยระยะท้ายแบบประคับประคอง" },
+    { id: "43", name: "Boss - หัวหน้างาน" },
+    { id: "44", name: "ICU - งานผู่ป่วยหนัก" },
+    { id: "45", name: "MDC - ศูนย์ซ่อมเครื่องมือแพทย์" },
+    { id: "46", name: "PHA IPD - ฝ่ายเภสัชกรรมชุมชน ผู้ป่วยใน" },
+    { id: "47", name: "PHA OPD - ฝ่ายเภสัชกรรมชุมชน ผู้ป่วยนอก" },
+    { id: "48", name: "PHA NCD - ฝ่ายเภสัชกรรมชุมชน ผู้ป่วยไม่ติดต่อเรื้อรัง" },
   ];
 
   const persons: Person[] = [
@@ -361,67 +400,12 @@ const PurchaseForm = () => {
           </Button>
         </div>
         
-        <div 
+        <ReceiptView
           ref={receiptRef}
-          className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto border border-gray-200"
-        >
-          <div className="text-center mb-4">
-            <h1 className="text-xl font-bold">โรงพยาบาลตัวอย่าง</h1>
-            <h2 className="text-lg text-gray-600">ใบเสร็จรับเงิน</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              เลขที่: {lastTransaction.receiptNumber}
-            </p>
-            <p className="text-sm text-gray-500">
-              วันที่: {lastTransaction.date} เวลา: {lastTransaction.time}
-            </p>
-          </div>
-
-          <div className="border-t border-b border-gray-300 py-3 my-3">
-            <div className="flex justify-between mb-2">
-              <span className="font-medium">ผู้ขาย:</span>
-              <span>{lastTransaction.seller}</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span className="font-medium">ประเภทขยะ:</span>
-              <span>{lastTransaction.wasteType}</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span className="font-medium">น้ำหนัก:</span>
-              <span>{lastTransaction.weight} {selectedWaste?.unit}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">ราคาต่อหน่วย:</span>
-              <span>{lastTransaction.pricePerUnit} บาท/{selectedWaste?.unit}</span>
-            </div>
-          </div>
-
-          <div className="flex justify-between text-lg font-bold mt-4 mb-6">
-            <span>รวมเป็นเงิน:</span>
-            <span className="text-primary">{lastTransaction.totalAmount.toFixed(2)} บาท</span>
-          </div>
-
-          <div className="text-right mt-8">
-            <div className="inline-block border border-gray-400 p-2 text-sm text-gray-500">
-              ลายเซ็นผู้รับ
-            </div>
-          </div>
-
-          <div className="text-center text-sm text-gray-500 mt-8">
-            <p>ขอบคุณที่ร่วมรักษาสิ่งแวดล้อม</p>
-            <p>โทร: 02-123-4567</p>
-          </div>
-        </div>
-
-        <div className="flex justify-center gap-4 mt-6">
-          <Button onClick={generatePDF} className="gap-2">
-            <Download className="h-4 w-4" />
-            ดาวน์โหลด PDF
-          </Button>
-          <Button onClick={handlePrint} variant="outline" className="gap-2">
-            <Receipt className="h-4 w-4" />
-            พิมพ์ใบเสร็จ
-          </Button>
-        </div>
+          data={lastTransaction}
+          onDownloadPDF={generatePDF}
+          onPrint={handlePrint}
+        />
       </div>
     );
   }

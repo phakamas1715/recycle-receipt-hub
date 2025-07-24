@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Download, Printer, Camera } from "lucide-react";
+import { Download, Printer, Share2 } from "lucide-react";
 
 interface ReceiptData {
   receiptNumber: string;
@@ -59,7 +59,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
             variant="outline"
             className="h-14 text-lg flex-1"
           >
-            <Camera className="h-6 w-6 mr-2" />
+            <Share2 className="h-6 w-6 mr-2" />
             แชร์ใบเสร็จ
           </Button>
         </div>

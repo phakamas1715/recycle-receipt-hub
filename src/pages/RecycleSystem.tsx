@@ -3,39 +3,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Recycle, FileText, Settings, Building2, BarChart3, Database } from "lucide-react";
-
-// Placeholder components for demonstration purposes
-// In a real application, these would be imported from their respective files.
-
-const PurchaseForm = () => (
-  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
-    <p className="text-lg font-medium">ส่วนฟอร์มบันทึกรับซื้อ (Placeholder)</p>
-  </div>
-);
-
-const TransactionHistory = () => (
-  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
-    <p className="text-lg font-medium">ส่วนประวัติรายการ (Placeholder)</p>
-  </div>
-);
-
-const SystemSettings = () => (
-  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
-    <p className="text-lg font-medium">ส่วนตั้งค่าระบบ (Placeholder)</p>
-  </div>
-);
-
-const ConfigSystem = () => (
-  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
-    <p className="text-lg font-medium">ส่วนเชื่อมต่อ API (Placeholder)</p>
-  </div>
-);
-
-const Dashboard = () => (
-  <div className="p-6 border border-dashed rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center h-48">
-    <p className="text-lg font-medium">ส่วนแดชบอร์ด (Placeholder)</p>
-  </div>
-);
+import PurchaseForm from "@/components/PurchaseForm";
+import TransactionHistory from "@/components/TransactionHistory";
+import SystemSettings from "@/components/SystemSettings";
+import ConfigSystem from "@/components/ConfigSystem";
+import Dashboard from "@/components/Dashboard";
 
 
 const RecycleSystem = () => {
