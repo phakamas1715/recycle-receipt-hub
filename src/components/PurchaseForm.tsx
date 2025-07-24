@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,11 +108,11 @@ const PurchaseForm = () => {
     { id: "2", name: "นางสาวสมหญิง รักดี", phone: "082-345-6789" },
   ];
 
-  const filteredDepartments = departments.filter(dept =>
+  const filteredDepartments = departments.filter(dept => 
     dept.name.toLowerCase().includes(departmentSearch.toLowerCase())
   );
 
-  const filteredWasteTypes = wasteTypes.filter(waste =>
+  const filteredWasteTypes = wasteTypes.filter(waste => 
     waste.name.toLowerCase().includes(wasteTypeSearch.toLowerCase())
   );
 
@@ -180,7 +179,32 @@ const PurchaseForm = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    const printWindow = window.open('', '', 'width=800,height=600');
+    if (printWindow && receiptRef.current) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>ใบเสร็จรับเงิน</title>
+            <style>
+              body { margin: 0; padding: 0; }
+              @page { size: auto; margin: 0mm; }
+            </style>
+          </head>
+          <body>
+            ${receiptRef.current.innerHTML}
+            <script>
+              window.onload = function() {
+                setTimeout(function() {
+                  window.print();
+                  window.close();
+                }, 100);
+              }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -300,15 +324,17 @@ const PurchaseForm = () => {
               <SelectTrigger className="h-16 text-xl font-medium">
                 <SelectValue placeholder="👆 เลือกแผนกของคุณ" />
               </SelectTrigger>
-              <SelectContent className="max-h-[500px]">
-                <div className="relative px-2 pt-1 pb-2">
-                  <Search className="absolute left-4 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="ค้นหาแผนก..."
-                    className="pl-10 h-10"
-                    value={departmentSearch}
-                    onChange={(e) => setDepartmentSearch(e.target.value)}
-                  />
+              <SelectContent className="max-h-80">
+                <div className="sticky top-0 z-10 bg-background p-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="ค้นหาแผนก..."
+                      className="pl-8"
+                      value={departmentSearch}
+                      onChange={(e) => setDepartmentSearch(e.target.value)}
+                    />
+                  </div>
                 </div>
                 {filteredDepartments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id} className="h-12 text-lg">
@@ -316,7 +342,7 @@ const PurchaseForm = () => {
                   </SelectItem>
                 ))}
                 {filteredDepartments.length === 0 && (
-                  <div className="py-4 text-center text-muted-foreground">
+                  <div className="text-center py-4 text-muted-foreground">
                     ไม่พบแผนกที่ค้นหา
                   </div>
                 )}
@@ -380,15 +406,17 @@ const PurchaseForm = () => {
               <SelectTrigger className="h-16 text-xl font-medium">
                 <SelectValue placeholder="👆 เลือกประเภทขยะ" />
               </SelectTrigger>
-              <SelectContent className="max-h-[500px]">
-                <div className="relative px-2 pt-1 pb-2">
-                  <Search className="absolute left-4 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="ค้นหาประเภทขยะ..."
-                    className="pl-10 h-10"
-                    value={wasteTypeSearch}
-                    onChange={(e) => setWasteTypeSearch(e.target.value)}
-                  />
+              <SelectContent className="max-h-80">
+                <div className="sticky top-0 z-10 bg-background p-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="ค้นหาประเภทขยะ..."
+                      className="pl-8"
+                      value={wasteTypeSearch}
+                      onChange={(e) => setWasteTypeSearch(e.target.value)}
+                    />
+                  </div>
                 </div>
                 {filteredWasteTypes.map((waste) => (
                   <SelectItem key={waste.id} value={waste.id} className="h-16">
@@ -401,7 +429,7 @@ const PurchaseForm = () => {
                   </SelectItem>
                 ))}
                 {filteredWasteTypes.length === 0 && (
-                  <div className="py-4 text-center text-muted-foreground">
+                  <div className="text-center py-4 text-muted-foreground">
                     ไม่พบประเภทขยะที่ค้นหา
                   </div>
                 )}
