@@ -22,7 +22,21 @@ const ElectronicSignature = ({ title, onSave, existingSignature }: ElectronicSig
   };
 
   const saveSignature = () => {
-    if (sigCanvas.current?.isEmpty()) {
+    console.log("saveSignature clicked");
+    console.log("sigCanvas.current:", sigCanvas.current);
+    
+    if (!sigCanvas.current) {
+      console.error("No signature canvas found");
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่พบแคนวาสลายเซ็น",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (sigCanvas.current.isEmpty()) {
+      console.log("Canvas is empty");
       toast({
         title: "กรุณาลงลายเซ็น",
         description: "กรุณาลงลายเซ็นก่อนบันทึก",
@@ -31,13 +45,24 @@ const ElectronicSignature = ({ title, onSave, existingSignature }: ElectronicSig
       return;
     }
 
-    const signature = sigCanvas.current?.getTrimmedCanvas().toDataURL("image/png");
-    if (signature) {
-      onSave(signature);
-      setIsOpen(false);
+    try {
+      const signature = sigCanvas.current.getTrimmedCanvas().toDataURL("image/png");
+      console.log("Generated signature:", signature ? "✓ Success" : "✗ Failed");
+      
+      if (signature) {
+        onSave(signature);
+        setIsOpen(false);
+        toast({
+          title: "บันทึกลายเซ็นสำเร็จ",
+          description: "ลายเซ็นได้รับการบันทึกแล้ว",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving signature:", error);
       toast({
-        title: "บันทึกลายเซ็นสำเร็จ",
-        description: "ลายเซ็นได้รับการบันทึกแล้ว",
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถบันทึกลายเซ็นได้",
+        variant: "destructive",
       });
     }
   };

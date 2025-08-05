@@ -44,6 +44,7 @@ const PurchaseForm = () => {
   const [departmentSearch, setDepartmentSearch] = useState("");
   const [wasteTypeSearch, setWasteTypeSearch] = useState("");
   const [personSearch, setPersonSearch] = useState("");
+  const [signatures, setSignatures] = useState<{buyer?: string, seller?: string}>({});
   const receiptRef = useRef<HTMLDivElement>(null);
 
   // Load waste types from storage
@@ -418,6 +419,16 @@ const PurchaseForm = () => {
     setDepartmentSearch("");
     setWasteTypeSearch("");
     setPersonSearch("");
+    setSignatures({});
+  };
+
+  const handleSignatureUpdate = (type: 'buyer' | 'seller', signature: string) => {
+    console.log("handleSignatureUpdate called:", { type, signature: signature ? "✓ Present" : "✗ Missing" });
+    setSignatures(prev => {
+      const updated = { ...prev, [type]: signature };
+      console.log("Updated signatures:", updated);
+      return updated;
+    });
   };
 
   if (showReceipt && lastTransaction) {
@@ -446,9 +457,14 @@ const PurchaseForm = () => {
         
         <ReceiptView
           ref={receiptRef}
-          data={lastTransaction}
+          data={{
+            ...lastTransaction,
+            buyerSignature: signatures.buyer,
+            sellerSignature: signatures.seller
+          }}
           onDownloadPDF={generatePDF}
           onPrint={handlePrint}
+          onUpdateSignature={handleSignatureUpdate}
         />
       </div>
     );
