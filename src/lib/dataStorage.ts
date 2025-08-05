@@ -1,4 +1,5 @@
 // Data Storage และ Management System
+console.log("DataStorage module loaded");
 export interface TransactionItem {
   wasteTypeId: string;
   wasteTypeName: string;

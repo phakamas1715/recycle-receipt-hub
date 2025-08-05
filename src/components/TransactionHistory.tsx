@@ -70,12 +70,14 @@ const TransactionHistory = () => {
   // Export functions
   const handleExportExcel = () => {
     try {
+      console.log("Exporting to Excel:", filteredTransactions.length, "transactions");
       ExportUtils.exportToExcel(filteredTransactions);
       toast({
         title: "ส่งออกสำเร็จ",
         description: "ข้อมูลถูกส่งออกเป็นไฟล์ Excel แล้ว",
       });
     } catch (error) {
+      console.error("Export Excel error:", error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถส่งออกไฟล์ Excel ได้",

@@ -139,7 +139,10 @@ const PurchaseForm = () => {
   }, [cartItems]);
 
   const addToCart = () => {
+    console.log("addToCart called", { selectedWaste, weight });
+    
     if (!selectedWaste || !weight) {
+      console.log("Missing data:", { selectedWaste: !!selectedWaste, weight: !!weight });
       toast({
         title: "ข้อมูลไม่ครบถ้วน",
         description: "กรุณาเลือกประเภทขยะและใส่น้ำหนัก",
@@ -372,8 +375,17 @@ const PurchaseForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("handleSubmit called", { 
+      cartItems: cartItems.length, 
+      selectedDepartment: !!selectedDepartment, 
+      selectedPerson: !!selectedPerson 
+    });
     
     if (cartItems.length === 0 || (!selectedDepartment && !selectedPerson)) {
+      console.log("Validation failed:", { 
+        cartItemsEmpty: cartItems.length === 0, 
+        noSellerSelected: !selectedDepartment && !selectedPerson 
+      });
       toast({
         title: "ข้อมูลไม่ครบถ้วน",
         description: "กรุณาเพิ่มรายการขยะและเลือกผู้ขาย",
