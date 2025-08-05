@@ -41,12 +41,26 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
     const { toast } = useToast();
 
     const handleSignatureUpdate = (type: 'buyer' | 'seller', signature: string) => {
-      const updatedData = {
-        ...receiptData,
-        [type === 'buyer' ? 'buyerSignature' : 'sellerSignature']: signature
-      };
-      setReceiptData(updatedData);
-      onUpdateSignature?.(type, signature);
+      console.log("Signature update:", { type, hasSignature: !!signature });
+      try {
+        const updatedData = {
+          ...receiptData,
+          [type === 'buyer' ? 'buyerSignature' : 'sellerSignature']: signature
+        };
+        setReceiptData(updatedData);
+        onUpdateSignature?.(type, signature);
+        toast({
+          title: "บันทึกลายเซ็นสำเร็จ",
+          description: `ลายเซ็น${type === 'buyer' ? 'ผู้ซื้อ' : 'ผู้ขาย'}ถูกบันทึกแล้ว`,
+        });
+      } catch (error) {
+        console.error("Error updating signature:", error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถบันทึกลายเซ็นได้",
+          variant: "destructive",
+        });
+      }
     };
 
     const shareReceipt = async () => {
@@ -180,7 +194,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
               <div className="text-sm text-muted-foreground">รายละเอียดการรับซื้อ:</div>
               
               <div className="bg-muted/30 p-4 rounded-lg space-y-3">
-                {receiptData.items.map((item, index) => (
+                {(receiptData.items || []).map((item, index) => (
                   <div key={index} className="border-b border-muted pb-2 last:border-b-0 last:pb-0">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">ประเภทขยะ:</span>
@@ -207,7 +221,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
                 <div className="pt-2 border-t border-muted">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">น้ำหนักรวม:</span>
-                    <span className="font-medium">{receiptData.totalWeight} กิโลกรัม</span>
+                    <span className="font-medium">{(receiptData.totalWeight || 0).toFixed(1)} กิโลกรัม</span>
                   </div>
                 </div>
               </div>
@@ -220,7 +234,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
               <div className="flex justify-between items-center">
                 <span className="text-xl font-bold">ยอดรวม:</span>
                 <span className="text-2xl font-bold text-primary">
-                  {receiptData.totalAmount.toFixed(2)} บาท
+                  {(receiptData.totalAmount || 0).toFixed(2)} บาท
                 </span>
               </div>
             </div>
