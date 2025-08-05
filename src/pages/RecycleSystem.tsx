@@ -19,25 +19,25 @@ const RecycleSystem = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
       <header className="bg-card border-b shadow-sm">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-primary to-accent rounded-lg">
-                <Recycle className="h-8 w-8 text-primary-foreground" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-to-br from-primary to-accent rounded-lg">
+                <Recycle className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
               </div>
-              <div>
-                {/* Increased font size for main title */}
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+              <div className="min-w-0 flex-1">
+                {/* Responsive title */}
+                <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
                   ระบบบันทึกรับซื้อขยะรีไซเคิล
                 </h1>
-                {/* Increased font size for subtitle */}
-                <p className="text-lg md:text-xl text-muted-foreground flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  โรงพยาบาลน้ำพอง
+                {/* Responsive subtitle */}
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground flex items-center gap-1 sm:gap-2 mt-1">
+                  <Building2 className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                  <span className="truncate">โรงพยาบาลน้ำพอง</span>
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="hidden md:flex text-base">
+            <Badge variant="secondary" className="hidden lg:flex text-sm">
               v1.0.0
             </Badge>
           </div>
@@ -45,69 +45,66 @@ const RecycleSystem = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Increased font size for tab triggers and added hover effects */}
-          {/* Increased padding (px-6 py-3) and text size (text-lg md:text-xl) for larger buttons */}
-          <TabsList className="grid w-full grid-cols-6 mb-8">
+          {/* Responsive tab layout */}
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-6 sm:mb-8 gap-1 h-auto p-1">
             <TabsTrigger
               value="purchase"
-              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg h-auto min-h-[48px] touch-button"
             >
-              <Recycle className="h-5 w-5" />
-              บันทึกรับซื้อ
+              <Recycle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-center leading-tight">บันทึกรับซื้อ</span>
             </TabsTrigger>
             <TabsTrigger
               value="history"
-              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg h-auto min-h-[48px] touch-button"
             >
-              <FileText className="h-5 w-5" />
-              รายการทั้งหมด
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-center leading-tight">รายการทั้งหมด</span>
             </TabsTrigger>
             <TabsTrigger
               value="dashboard"
-              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg h-auto min-h-[48px] touch-button"
             >
-              <BarChart3 className="h-5 w-5" />
-              แดชบอร์ด
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-center leading-tight">แดชบอร์ด</span>
             </TabsTrigger>
             <TabsTrigger
               value="departments"
-              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg h-auto min-h-[48px] touch-button"
             >
-              <Building2 className="h-5 w-5" />
-              ข้อมูลแผนก
+              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-center leading-tight">ข้อมูลแผนก</span>
             </TabsTrigger>
             <TabsTrigger
               value="waste-types"
-              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg h-auto min-h-[48px] touch-button"
             >
-              <Package className="h-5 w-5" />
-              ประเภทขยะ
+              <Package className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-center leading-tight">ประเภทขยะ</span>
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="flex items-center gap-2 px-4 py-3 text-base md:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg h-auto min-h-[48px] touch-button"
             >
-              <Settings className="h-5 w-5" />
-              ตั้งค่าระบบ
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <span className="text-center leading-tight">ตั้งค่าระบบ</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="purchase" className="space-y-6">
-            <Card>
-              <CardHeader>
-                {/* Increased font size for CardTitle */}
-                <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
-                  <Recycle className="h-6 w-6 text-primary" />
-                  บันทึกการรับซื้อขยะรีไซเคิล
+          <TabsContent value="purchase" className="space-y-4 sm:space-y-6">
+            <Card className="mobile-card">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl md:text-2xl">
+                  <Recycle className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
+                  <span className="min-w-0">บันทึกการรับซื้อขยะรีไซเคิล</span>
                 </CardTitle>
-                {/* Increased font size for CardDescription */}
-                <CardDescription className="text-base md:text-lg">
+                <CardDescription className="text-sm sm:text-base md:text-lg">
                   กรอกข้อมูลการรับซื้อขยะรีไซเคิลจากแผนกต่างๆ หรือบุคคลทั่วไป
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <PurchaseForm />
               </CardContent>
             </Card>
