@@ -344,30 +344,35 @@ class DataStorage {
   getStatistics() {
     const transactions = this.getTransactions();
     const totalTransactions = transactions.length;
-    const totalAmount = transactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalWeight = transactions.reduce((sum, t) => sum + t.totalWeight, 0);
+    const totalAmount = transactions.reduce((sum, t) => sum + (t.totalAmount || 0), 0);
+    const totalWeight = transactions.reduce((sum, t) => sum + (t.totalWeight || 0), 0);
     
     // Group by waste type
     const wasteTypeStats = transactions.reduce((acc, t) => {
-      t.items.forEach(item => {
-        if (!acc[item.wasteTypeName]) {
-          acc[item.wasteTypeName] = { count: 0, weight: 0, amount: 0 };
+      // Safely handle items array
+      const items = t.items || [];
+      items.forEach(item => {
+        if (item && item.wasteTypeName) {
+          if (!acc[item.wasteTypeName]) {
+            acc[item.wasteTypeName] = { count: 0, weight: 0, amount: 0 };
+          }
+          acc[item.wasteTypeName].count++;
+          acc[item.wasteTypeName].weight += item.weight || 0;
+          acc[item.wasteTypeName].amount += item.amount || 0;
         }
-        acc[item.wasteTypeName].count++;
-        acc[item.wasteTypeName].weight += item.weight;
-        acc[item.wasteTypeName].amount += item.amount;
       });
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
 
     // Group by seller
     const sellerStats = transactions.reduce((acc, t) => {
-      if (!acc[t.seller]) {
-        acc[t.seller] = { count: 0, weight: 0, amount: 0 };
+      const seller = t.seller || 'ไม่ระบุชื่อ';
+      if (!acc[seller]) {
+        acc[seller] = { count: 0, weight: 0, amount: 0 };
       }
-      acc[t.seller].count++;
-      acc[t.seller].weight += t.totalWeight;
-      acc[t.seller].amount += t.totalAmount;
+      acc[seller].count++;
+      acc[seller].weight += t.totalWeight || 0;
+      acc[seller].amount += t.totalAmount || 0;
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
 

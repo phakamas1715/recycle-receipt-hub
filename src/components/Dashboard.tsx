@@ -38,22 +38,22 @@ const Dashboard = () => {
       
       // Generate real dashboard data
       const realData: DashboardData = {
-        totalTransactions: stats.totalTransactions,
-        totalAmount: stats.totalAmount,
-        totalWeight: stats.totalWeight,
-        topDepartments: Object.entries(stats.sellerStats)
-          .sort(([,a], [,b]) => b.amount - a.amount)
+        totalTransactions: stats.totalTransactions || 0,
+        totalAmount: stats.totalAmount || 0,
+        totalWeight: stats.totalWeight || 0,
+        topDepartments: Object.entries(stats.sellerStats || {})
+          .sort(([,a], [,b]) => (b?.amount || 0) - (a?.amount || 0))
           .slice(0, 5)
           .map(([name, data]) => ({
             name: name.length > 30 ? name.substring(0, 30) + '...' : name,
-            amount: data.amount,
-            weight: data.weight,
-            transactions: data.count
+            amount: data?.amount || 0,
+            weight: data?.weight || 0,
+            transactions: data?.count || 0
           })),
-        wasteTypeDistribution: Object.entries(stats.wasteTypeStats).map(([name, data]) => ({
+        wasteTypeDistribution: Object.entries(stats.wasteTypeStats || {}).map(([name, data]) => ({
           name,
-          value: data.weight,
-          amount: data.amount
+          value: data?.weight || 0,
+          amount: data?.amount || 0
         })),
         monthlyTrend: generateMonthlyTrend(transactions),
         dailyStats: generateDailyStats(transactions)
