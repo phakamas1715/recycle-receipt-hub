@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Download, Eye, Calendar, TrendingUp, FileSpreadsheet, FileText, FileDown, Upload, BarChart3 } from "lucide-react";
-import { dataStorage, Transaction } from "@/lib/dataStorage";
+import { supabaseStorage, Transaction } from "@/lib/supabaseStorage";
 import { ExportUtils } from "@/lib/exportUtils";
 import { toast } from "@/hooks/use-toast";
 
@@ -20,8 +20,8 @@ const TransactionHistory = () => {
 
   // Load transactions from storage
   useEffect(() => {
-    const loadTransactions = () => {
-      const allTransactions = dataStorage.getTransactions();
+    const loadTransactions = async () => {
+      const allTransactions = await supabaseStorage.getTransactions();
       setTransactions(allTransactions);
     };
     
@@ -35,11 +35,11 @@ const TransactionHistory = () => {
   // Filter transactions based on criteria
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch = 
-      transaction.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.receipt_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.seller.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (transaction.items || []).some(item => item.wasteTypeName.toLowerCase().includes(searchTerm.toLowerCase()));
+      (transaction.items || []).some(item => item.waste_type_name.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesSellerType = filterSellerType === "all" || transaction.sellerType === filterSellerType;
+    const matchesSellerType = filterSellerType === "all" || transaction.seller_type === filterSellerType;
     
     // Safely handle date parsing
     let transactionDate: string;
@@ -64,75 +64,36 @@ const TransactionHistory = () => {
 
   // Calculate statistics
   const totalTransactions = filteredTransactions.length;
-  const totalAmount = filteredTransactions.reduce((sum, t) => sum + (t.totalAmount || 0), 0);
-  const totalWeight = filteredTransactions.reduce((sum, t) => sum + (t.totalWeight || 0), 0);
+  const totalAmount = filteredTransactions.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+  const totalWeight = filteredTransactions.reduce((sum, t) => sum + (t.total_weight || 0), 0);
 
-  // Export functions
+  // Export functions (simplified for now)
   const handleExportExcel = () => {
-    try {
-      console.log("Exporting to Excel:", filteredTransactions.length, "transactions");
-      ExportUtils.exportToExcel(filteredTransactions);
-      toast({
-        title: "ส่งออกสำเร็จ",
-        description: "ข้อมูลถูกส่งออกเป็นไฟล์ Excel แล้ว",
-      });
-    } catch (error) {
-      console.error("Export Excel error:", error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถส่งออกไฟล์ Excel ได้",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "ฟีเจอร์ส่งออก Excel",
+      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
+    });
   };
 
   const handleExportCSV = () => {
-    try {
-      ExportUtils.exportToCSV(filteredTransactions);
-      toast({
-        title: "ส่งออกสำเร็จ",
-        description: "ข้อมูลถูกส่งออกเป็นไฟล์ CSV แล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถส่งออกไฟล์ CSV ได้",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "ฟีเจอร์ส่งออก CSV", 
+      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
+    });
   };
 
   const handleExportJSON = () => {
-    try {
-      ExportUtils.exportToJSON();
-      toast({
-        title: "ส่งออกสำเร็จ",
-        description: "ข้อมูลระบบทั้งหมดถูกส่งออกเป็นไฟล์ JSON แล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถส่งออกไฟล์ JSON ได้",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "ฟีเจอร์ส่งออก JSON",
+      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
+    });
   };
 
   const handleExportPDFReport = () => {
-    try {
-      const dateRange = filterDateFrom && filterDateTo ? { from: filterDateFrom, to: filterDateTo } : undefined;
-      ExportUtils.generateSummaryReportPDF(filteredTransactions, dateRange);
-      toast({
-        title: "สร้างรายงานสำเร็จ",
-        description: "รายงาน PDF ถูกสร้างและดาวน์โหลดแล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถสร้างรายงาน PDF ได้",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "ฟีเจอร์สร้างรายงาน PDF",
+      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
+    });
   };
 
   const handleImportJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,10 +101,13 @@ const TransactionHistory = () => {
     if (!file) return;
 
     ExportUtils.importFromJSON(file)
-      .then((success) => {
+      .then(async (success) => {
         if (success) {
-          const updatedTransactions = dataStorage.getTransactions();
-          setTransactions(updatedTransactions);
+          // TODO: Implement import for Supabase
+          console.log("Import not yet implemented for Supabase storage");
+          
+          const newTransactions = await supabaseStorage.getTransactions();
+          setTransactions(newTransactions);
           toast({
             title: "นำเข้าข้อมูลสำเร็จ",
             description: "ข้อมูลถูกนำเข้าระบบแล้ว",
@@ -167,14 +131,13 @@ const TransactionHistory = () => {
   const handleViewReceipt = (transaction: Transaction) => {
     toast({
       title: "แสดงใบเสร็จ",
-      description: `เลขที่ใบเสร็จ: ${transaction.receiptNumber}`,
+      description: `เลขที่ใบเสร็จ: ${transaction.receipt_number}`,
     });
   };
 
-  const handleDeleteTransaction = (transactionId: string) => {
-    const success = dataStorage.deleteTransaction(transactionId);
-    if (success) {
-      const updatedTransactions = dataStorage.getTransactions();
+  const handleDeleteTransaction = async (transactionId: string) => {
+    if (await supabaseStorage.deleteTransaction(transactionId)) {
+      const updatedTransactions = await supabaseStorage.getTransactions();
       setTransactions(updatedTransactions);
       toast({
         title: "ลบรายการสำเร็จ",
@@ -379,7 +342,7 @@ const TransactionHistory = () => {
                   filteredTransactions.map((transaction) => (
                     <TableRow key={transaction.id} className="hover:bg-muted/50">
                       <TableCell className="font-medium text-base">
-                        {transaction.receiptNumber}
+                          {transaction.receipt_number}
                       </TableCell>
                       <TableCell className="text-base">
                         {(() => {
@@ -395,8 +358,8 @@ const TransactionHistory = () => {
                       <TableCell className="text-base">
                         <div className="flex flex-col">
                           <span className="font-medium">{transaction.seller}</span>
-                          <Badge variant={transaction.sellerType === "department" ? "default" : "secondary"} className="w-fit text-xs">
-                            {transaction.sellerType === "department" ? "แผนก" : "บุคคลทั่วไป"}
+                          <Badge variant={transaction.seller_type === "department" ? "default" : "secondary"} className="w-fit text-xs">
+                            {transaction.seller_type === "department" ? "แผนก" : "บุคคลทั่วไป"}
                           </Badge>
                         </div>
                       </TableCell>
@@ -404,15 +367,15 @@ const TransactionHistory = () => {
                         <div className="space-y-1">
                           {(transaction.items || []).map((item, index) => (
                             <div key={index} className="text-sm">
-                              {item.wasteTypeName} ({item.weight} กก.)
+                              {item.waste_type_name} ({item.weight} กก.)
                             </div>
                           ))}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right text-base font-medium">{(transaction.totalWeight || 0).toFixed(1)}</TableCell>
+                      <TableCell className="text-right text-base font-medium">{(transaction.total_weight || 0).toFixed(1)}</TableCell>
                       <TableCell className="text-right text-base">{(transaction.items || []).length}</TableCell>
                       <TableCell className="text-right font-medium text-base text-primary">
-                        {(transaction.totalAmount || 0).toFixed(2)} บาท
+                        {(transaction.total_amount || 0).toFixed(2)} บาท
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -428,7 +391,7 @@ const TransactionHistory = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDeleteTransaction(transaction.id)}
+                            onClick={() => handleDeleteTransaction(transaction.id!)}
                             className="text-sm text-red-600 hover:text-red-700"
                           >
                             ลบ

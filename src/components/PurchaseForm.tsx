@@ -10,14 +10,9 @@ import { Calculator, Receipt, Users, Building, Download, Plus, Minus, CheckCircl
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReceiptView from "./ReceiptView";
-import { dataStorage, Transaction, TransactionItem } from "@/lib/dataStorage";
+import { supabaseStorage, Transaction, TransactionItem } from "@/lib/supabaseStorage";
 
-interface WasteType {
-  id: string;
-  name: string;
-  price: number;
-  unit: string;
-}
+import { WasteType } from "@/lib/supabaseStorage";
 
 interface Department {
   id: string;
@@ -51,8 +46,8 @@ const PurchaseForm = () => {
   const [wasteTypes, setWasteTypes] = useState<WasteType[]>([]);
   
   useEffect(() => {
-    const loadWasteTypes = () => {
-      const stored = dataStorage.getWasteTypes();
+    const loadWasteTypes = async () => {
+      const stored = await supabaseStorage.getWasteTypes();
       setWasteTypes(stored);
     };
     loadWasteTypes();
@@ -162,10 +157,10 @@ const PurchaseForm = () => {
     }
 
     const newItem: TransactionItem = {
-      wasteTypeId: selectedWaste.id,
-      wasteTypeName: selectedWaste.name,
+      waste_type_id: selectedWaste.id,
+      waste_type_name: selectedWaste.name,
       weight: weightNum,
-      pricePerUnit: selectedWaste.price,
+      price_per_unit: selectedWaste.price,
       amount: weightNum * selectedWaste.price
     };
 
@@ -212,7 +207,7 @@ const PurchaseForm = () => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      pdf.save(`receipt-${lastTransaction.receiptNumber}.pdf`);
+      pdf.save(`receipt-${lastTransaction.receipt_number}.pdf`);
       
       toast({
         title: "สร้าง PDF สำเร็จ",
@@ -314,7 +309,7 @@ const PurchaseForm = () => {
               <div class="receipt-header">
                 <div class="hospital-name">โรงพยาบาลตัวอย่าง</div>
                 <div class="receipt-title">ใบเสร็จรับเงิน</div>
-                <div class="receipt-info">เลขที่: ${lastTransaction.receiptNumber}</div>
+                <div class="receipt-info">เลขที่: ${lastTransaction.receipt_number}</div>
                 <div class="receipt-info">วันที่: ${lastTransaction.date} ${lastTransaction.time}</div>
               </div>
               
@@ -327,23 +322,23 @@ const PurchaseForm = () => {
                 <div class="detail-row">
                   <span class="detail-label">รายการขยะ:</span>
                 </div>
-                ${lastTransaction.items.map(item => `
+                 ${lastTransaction.items.map(item => `
                 <div class="detail-row">
-                  <span>${item.wasteTypeName}</span>
-                  <span>${item.weight} กก. × ${item.pricePerUnit} = ${item.amount.toFixed(2)} บาท</span>
+                  <span>${item.waste_type_name}</span>
+                  <span>${item.weight} กก. × ${item.price_per_unit} = ${item.amount.toFixed(2)} บาท</span>
                 </div>
                 `).join('')}
                 
                 <div class="detail-row">
                   <span class="detail-label">น้ำหนักรวม:</span>
-                  <span>${lastTransaction.totalWeight} กิโลกรัม</span>
+                  <span>${lastTransaction.total_weight} กิโลกรัม</span>
                 </div>
               </div>
               
               <div class="receipt-total">
                 <div class="detail-row">
                   <span class="detail-label">รวมเป็นเงิน:</span>
-                  <span>${lastTransaction.totalAmount.toFixed(2)} บาท</span>
+                  <span>${lastTransaction.total_amount.toFixed(2)} บาท</span>
                 </div>
               </div>
               
@@ -373,7 +368,7 @@ const PurchaseForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("handleSubmit called", { 
       cartItems: cartItems.length, 
@@ -398,20 +393,20 @@ const PurchaseForm = () => {
     const totalWeight = cartItems.reduce((sum, item) => sum + item.weight, 0);
     
     const transactionToSave = {
-      receiptNumber,
+      receipt_number: receiptNumber,
       date: new Date().toISOString().split('T')[0], // Use ISO format YYYY-MM-DD
       time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-      sellerType,
+      seller_type: sellerType,
       seller: sellerType === "department" 
         ? departments.find(d => d.id === selectedDepartment)?.name || ""
         : persons.find(p => p.id === selectedPerson)?.name || "",
       items: cartItems,
-      totalWeight,
-      totalAmount,
+      total_weight: totalWeight,
+      total_amount: totalAmount,
     };
 
     // Save to storage
-    const savedTransaction = dataStorage.saveTransaction(transactionToSave);
+    const savedTransaction = await supabaseStorage.saveTransaction(transactionToSave);
     
     setLastTransaction(savedTransaction);
     setShowReceipt(true);
@@ -470,7 +465,20 @@ const PurchaseForm = () => {
         <ReceiptView
           ref={receiptRef}
           data={{
-            ...lastTransaction,
+            receiptNumber: lastTransaction.receipt_number,
+            date: lastTransaction.date,
+            time: lastTransaction.time,
+            sellerType: lastTransaction.seller_type,
+            seller: lastTransaction.seller,
+            items: lastTransaction.items.map(item => ({
+              wasteTypeId: item.waste_type_id,
+              wasteTypeName: item.waste_type_name,
+              weight: item.weight,
+              pricePerUnit: item.price_per_unit,
+              amount: item.amount
+            })),
+            totalWeight: lastTransaction.total_weight,
+            totalAmount: lastTransaction.total_amount,
             buyerSignature: signatures.buyer,
             sellerSignature: signatures.seller
           }}

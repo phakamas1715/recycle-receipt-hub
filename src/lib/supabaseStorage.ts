@@ -1,5 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 
+// Type casting for our custom tables that aren't in the generated types yet
+type SupabaseClient = typeof supabase;
+
 export interface TransactionItem {
   waste_type_id: string;
   waste_type_name: string;
@@ -53,7 +56,7 @@ class SupabaseStorage {
       console.log("Saving transaction:", transaction);
       
       // Save main transaction
-      const { data: transactionData, error: transactionError } = await supabase
+      const { data: transactionData, error: transactionError } = await (supabase as any)
         .from('transactions')
         .insert({
           receipt_number: transaction.receipt_number,
@@ -82,7 +85,7 @@ class SupabaseStorage {
         amount: item.amount
       }));
 
-      const { error: itemsError } = await supabase
+      const { error: itemsError } = await (supabase as any)
         .from('transaction_items')
         .insert(itemsToInsert);
 
@@ -103,7 +106,7 @@ class SupabaseStorage {
 
   async getTransactions(): Promise<Transaction[]> {
     try {
-      const { data: transactions, error } = await supabase
+      const { data: transactions, error } = await (supabase as any)
         .from('transactions')
         .select(`
           *,
@@ -150,13 +153,13 @@ class SupabaseStorage {
   async deleteTransaction(id: string): Promise<boolean> {
     try {
       // Delete transaction items first
-      await supabase
+      await (supabase as any)
         .from('transaction_items')
         .delete()
         .eq('transaction_id', id);
 
       // Delete transaction
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('transactions')
         .delete()
         .eq('id', id);
@@ -176,7 +179,7 @@ class SupabaseStorage {
   // Waste Type Management
   async getWasteTypes(): Promise<WasteType[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('waste_types')
         .select('*')
         .eq('is_active', true)
@@ -196,7 +199,7 @@ class SupabaseStorage {
 
   async saveWasteType(wasteType: Omit<WasteType, 'id' | 'created_at' | 'updated_at'>): Promise<WasteType | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('waste_types')
         .insert(wasteType)
         .select()
@@ -216,7 +219,7 @@ class SupabaseStorage {
 
   async updateWasteType(id: string, updates: Partial<WasteType>): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('waste_types')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id);
@@ -235,7 +238,7 @@ class SupabaseStorage {
 
   async deleteWasteType(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('waste_types')
         .update({ is_active: false })
         .eq('id', id);
@@ -255,7 +258,7 @@ class SupabaseStorage {
   // Person Management
   async getPersons(): Promise<Person[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('persons')
         .select('*')
         .eq('is_active', true)
@@ -275,7 +278,7 @@ class SupabaseStorage {
 
   async savePerson(person: Omit<Person, 'id' | 'created_at' | 'updated_at'>): Promise<Person | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('persons')
         .insert(person)
         .select()
