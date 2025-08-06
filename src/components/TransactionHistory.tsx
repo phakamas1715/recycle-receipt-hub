@@ -68,61 +68,98 @@ const TransactionHistory = () => {
   const totalWeight = filteredTransactions.reduce((sum, t) => sum + (t.total_weight || 0), 0);
 
   // Export functions (simplified for now)
-  const handleExportExcel = () => {
-    toast({
-      title: "ฟีเจอร์ส่งออก Excel",
-      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
-    });
+  const handleExportExcel = async () => {
+    try {
+      const { ExportUtils } = await import('../lib/exportUtils');
+      ExportUtils.exportToExcel(filteredTransactions);
+      toast({
+        title: "ส่งออกสำเร็จ",
+        description: "ไฟล์ Excel ถูกดาวน์โหลดแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถส่งออกไฟล์ Excel ได้",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleExportCSV = () => {
-    toast({
-      title: "ฟีเจอร์ส่งออก CSV", 
-      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
-    });
+  const handleExportCSV = async () => {
+    try {
+      const { ExportUtils } = await import('../lib/exportUtils');
+      ExportUtils.exportToCSV(filteredTransactions);
+      toast({
+        title: "ส่งออกสำเร็จ",
+        description: "ไฟล์ CSV ถูกดาวน์โหลดแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถส่งออกไฟล์ CSV ได้",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleExportJSON = () => {
-    toast({
-      title: "ฟีเจอร์ส่งออก JSON",
-      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
-    });
+  const handleExportJSON = async () => {
+    try {
+      const { ExportUtils } = await import('../lib/exportUtils');
+      await ExportUtils.exportToJSON();
+      toast({
+        title: "ส่งออกสำเร็จ",
+        description: "ไฟล์ JSON ถูกดาวน์โหลดแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถส่งออกไฟล์ JSON ได้",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleExportPDFReport = () => {
-    toast({
-      title: "ฟีเจอร์สร้างรายงาน PDF",
-      description: "จะเพิ่มฟีเจอร์นี้ในเวอร์ชั่นถัดไป",
-    });
+  const handleExportPDFReport = async () => {
+    try {
+      const { ExportUtils } = await import('../lib/exportUtils');
+      await ExportUtils.generateSummaryReportPDF(filteredTransactions);
+      toast({
+        title: "สร้างรายงานสำเร็จ",
+        description: "ไฟล์ PDF ถูกดาวน์โหลดแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถสร้างรายงาน PDF ได้",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleImportJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportJSON = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    ExportUtils.importFromJSON(file)
-      .then(async (success) => {
-        if (success) {
-          // TODO: Implement import for Supabase
-          console.log("Import not yet implemented for Supabase storage");
-          
-          const newTransactions = await supabaseStorage.getTransactions();
-          setTransactions(newTransactions);
-          toast({
-            title: "นำเข้าข้อมูลสำเร็จ",
-            description: "ข้อมูลถูกนำเข้าระบบแล้ว",
-          });
-        } else {
-          throw new Error("Import failed");
-        }
-      })
-      .catch(() => {
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถนำเข้าข้อมูลได้ กรุณาตรวจสอบไฟล์",
-          variant: "destructive",
-        });
+    try {
+      const { ExportUtils } = await import('../lib/exportUtils');
+      await ExportUtils.importFromJSON(file);
+      const updatedTransactions = await supabaseStorage.getTransactions();
+      setTransactions(updatedTransactions);
+      toast({
+        title: "นำเข้าสำเร็จ",
+        description: "ข้อมูลถูกนำเข้าแล้ว",
       });
+      // Reset file input
+      event.target.value = '';
+    } catch (error) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: error instanceof Error ? error.message : "ไม่สามารถนำเข้าข้อมูลได้",
+        variant: "destructive",
+      });
+      // Reset file input
+      event.target.value = '';
+    }
     
     // Reset input
     event.target.value = '';

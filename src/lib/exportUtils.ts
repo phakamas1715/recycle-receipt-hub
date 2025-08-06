@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
-import { Transaction, dataStorage } from './dataStorage';
+import { Transaction, supabaseStorage } from './supabaseStorage';
 
 export class ExportUtils {
   
@@ -19,7 +19,7 @@ export class ExportUtils {
       const transactionData = transactions.flatMap((t, index) => 
         t.items.map((item, itemIndex) => ({
           'ลำดับ': itemIndex === 0 ? index + 1 : '',
-          'เลขที่ใบเสร็จ': itemIndex === 0 ? t.receiptNumber : '',
+          'เลขที่ใบเสร็จ': itemIndex === 0 ? t.receipt_number : '',
           'วันที่': itemIndex === 0 ? (() => {
             try {
               const date = new Date(t.date);
@@ -29,17 +29,17 @@ export class ExportUtils {
             }
           })() : '',
           'เวลา': itemIndex === 0 ? t.time : '',
-          'ประเภทผู้ขาย': itemIndex === 0 ? (t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
+          'ประเภทผู้ขาย': itemIndex === 0 ? (t.seller_type === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
           'ผู้ขาย': itemIndex === 0 ? t.seller : '',
-          'ประเภทขยะ': item.wasteTypeName,
+          'ประเภทขยะ': item.waste_type_name,
           'น้ำหนัก (กก.)': item.weight,
-          'ราคาต่อหน่วย (บาท)': item.pricePerUnit,
+          'ราคาต่อหน่วย (บาท)': item.price_per_unit,
           'ยอดย่อย (บาท)': item.amount,
-          'น้ำหนักรวม (กก.)': itemIndex === 0 ? t.totalWeight : '',
-          'ยอดรวม (บาท)': itemIndex === 0 ? t.totalAmount : '',
+          'น้ำหนักรวม (กก.)': itemIndex === 0 ? t.total_weight : '',
+          'ยอดรวม (บาท)': itemIndex === 0 ? t.total_amount : '',
           'วันที่บันทึก': itemIndex === 0 ? (() => {
             try {
-              const date = new Date(t.createdAt);
+              const date = new Date(t.created_at || '');
               return isNaN(date.getTime()) ? 'วันที่ไม่ถูกต้อง' : date.toLocaleDateString('th-TH', {
                 year: 'numeric',
                 month: '2-digit',
@@ -87,7 +87,7 @@ export class ExportUtils {
       const csvData = transactions.flatMap((t, index) => 
         t.items.map((item, itemIndex) => ({
           'ลำดับ': itemIndex === 0 ? index + 1 : '',
-          'เลขที่ใบเสร็จ': itemIndex === 0 ? t.receiptNumber : '',
+          'เลขที่ใบเสร็จ': itemIndex === 0 ? t.receipt_number : '',
           'วันที่': itemIndex === 0 ? (() => {
             try {
               const date = new Date(t.date);
@@ -97,13 +97,13 @@ export class ExportUtils {
             }
           })() : '',
           'เวลา': itemIndex === 0 ? t.time : '',
-          'ประเภทผู้ขาย': itemIndex === 0 ? (t.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
+          'ประเภทผู้ขาย': itemIndex === 0 ? (t.seller_type === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
           'ผู้ขาย': itemIndex === 0 ? t.seller : '',
-          'ประเภทขยะ': item.wasteTypeName,
+          'ประเภทขยะ': item.waste_type_name,
           'น้ำหนัก (กก.)': item.weight,
-          'ราคาต่อหน่วย (บาท)': item.pricePerUnit,
+          'ราคาต่อหน่วย (บาท)': item.price_per_unit,
           'ยอดย่อย (บาท)': item.amount,
-          'ยอดรวม (บาท)': itemIndex === 0 ? t.totalAmount : ''
+          'ยอดรวม (บาท)': itemIndex === 0 ? t.total_amount : ''
         }))
       );
       
@@ -121,9 +121,9 @@ export class ExportUtils {
   }
   
   // Export to JSON
-  static exportToJSON(filename?: string): void {
+  static async exportToJSON(filename?: string): Promise<void> {
     try {
-      const allData = dataStorage.exportAllData();
+      const allData = await supabaseStorage.exportAllData();
       const fileName = filename || `ข้อมูลระบบขยะรีไซเคิล_${new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}.json`;
       const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
       saveAs(blob, fileName);
@@ -134,7 +134,7 @@ export class ExportUtils {
   }
   
   // Generate Summary Report PDF
-  static generateSummaryReportPDF(transactions: Transaction[], dateRange?: { from: string; to: string }): void {
+  static async generateSummaryReportPDF(transactions: Transaction[], dateRange?: { from: string; to: string }): Promise<void> {
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
       
@@ -152,7 +152,7 @@ export class ExportUtils {
       }
       
       // Summary Statistics
-      const stats = dataStorage.getStatistics();
+      const stats = await supabaseStorage.getStatistics();
       pdf.setFontSize(14);
       pdf.text('สถิติรวม', 20, 60);
       
@@ -164,7 +164,7 @@ export class ExportUtils {
       yPos += 10;
       pdf.text(`น้ำหนักรวม: ${stats.totalWeight.toLocaleString()} กิโลกรัม`, 20, yPos);
       yPos += 10;
-      pdf.text(`ค่าเฉลี่ยต่อรายการ: ${stats.averageAmount.toFixed(2)} บาท`, 20, yPos);
+      pdf.text(`ค่าเฉลี่ยต่อรายการ: ${transactions.length > 0 ? (stats.totalAmount / stats.totalTransactions).toFixed(2) : '0.00'} บาท`, 20, yPos);
       yPos += 15;
       
       // Top Waste Types
@@ -196,16 +196,38 @@ export class ExportUtils {
   }
   
   // Import from JSON
-  static importFromJSON(file: File): Promise<boolean> {
+  static async importFromJSON(file: File): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = JSON.parse(e.target?.result as string);
-          const success = dataStorage.importData(data);
-          resolve(success);
+          
+          // Import transactions
+          if (data.transactions && Array.isArray(data.transactions)) {
+            for (const transaction of data.transactions) {
+              await supabaseStorage.saveTransaction(transaction);
+            }
+          }
+          
+          // Import waste types
+          if (data.wasteTypes && Array.isArray(data.wasteTypes)) {
+            for (const wasteType of data.wasteTypes) {
+              await supabaseStorage.saveWasteType(wasteType);
+            }
+          }
+          
+          // Import persons
+          if (data.persons && Array.isArray(data.persons)) {
+            for (const person of data.persons) {
+              await supabaseStorage.savePerson(person);
+            }
+          }
+          
+          resolve(true);
         } catch (error) {
-          reject(new Error('ไฟล์ JSON ไม่ถูกต้อง'));
+          console.error('Import error:', error);
+          reject(new Error('ไฟล์ JSON ไม่ถูกต้องหรือเกิดข้อผิดพลาดในการนำเข้าข้อมูล'));
         }
       };
       reader.onerror = () => reject(new Error('เกิดข้อผิดพลาดในการอ่านไฟล์'));
@@ -215,8 +237,8 @@ export class ExportUtils {
   
   // Helper methods for generating analysis data
   private static generateSummaryData(transactions: Transaction[]) {
-    const totalAmount = transactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalWeight = transactions.reduce((sum, t) => sum + t.totalWeight, 0);
+    const totalAmount = transactions.reduce((sum, t) => sum + t.total_amount, 0);
+    const totalWeight = transactions.reduce((sum, t) => sum + t.total_weight, 0);
     
     return [
       { 'รายการ': 'จำนวนรายการทั้งหมด', 'ค่า': transactions.length, 'หน่วย': 'รายการ' },
@@ -230,12 +252,12 @@ export class ExportUtils {
   private static generateWasteTypeAnalysis(transactions: Transaction[]) {
     const analysis = transactions.reduce((acc, t) => {
       t.items.forEach(item => {
-        if (!acc[item.wasteTypeName]) {
-          acc[item.wasteTypeName] = { count: 0, weight: 0, amount: 0 };
+        if (!acc[item.waste_type_name]) {
+          acc[item.waste_type_name] = { count: 0, weight: 0, amount: 0 };
         }
-        acc[item.wasteTypeName].count++;
-        acc[item.wasteTypeName].weight += item.weight;
-        acc[item.wasteTypeName].amount += item.amount;
+        acc[item.waste_type_name].count++;
+        acc[item.waste_type_name].weight += item.weight;
+        acc[item.waste_type_name].amount += item.amount;
       });
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
@@ -254,11 +276,11 @@ export class ExportUtils {
   private static generateSellerAnalysis(transactions: Transaction[]) {
     const analysis = transactions.reduce((acc, t) => {
       if (!acc[t.seller]) {
-        acc[t.seller] = { count: 0, weight: 0, amount: 0, type: t.sellerType };
+        acc[t.seller] = { count: 0, weight: 0, amount: 0, type: t.seller_type };
       }
       acc[t.seller].count++;
-      acc[t.seller].weight += t.totalWeight;
-      acc[t.seller].amount += t.totalAmount;
+      acc[t.seller].weight += t.total_weight;
+      acc[t.seller].amount += t.total_amount;
       return acc;
     }, {} as Record<string, { count: number; weight: number; amount: number; type: string }>);
     
@@ -282,8 +304,8 @@ export class ExportUtils {
           acc[month] = { count: 0, weight: 0, amount: 0 };
         }
         acc[month].count++;
-        acc[month].weight += t.totalWeight;
-        acc[month].amount += t.totalAmount;
+        acc[month].weight += t.total_weight;
+        acc[month].amount += t.total_amount;
         return acc;
       } catch {
         const month = 'ไม่ระบุเดือน';
@@ -291,8 +313,8 @@ export class ExportUtils {
           acc[month] = { count: 0, weight: 0, amount: 0 };
         }
         acc[month].count++;
-        acc[month].weight += t.totalWeight;
-        acc[month].amount += t.totalAmount;
+        acc[month].weight += t.total_weight;
+        acc[month].amount += t.total_amount;
         return acc;
       }
     }, {} as Record<string, { count: number; weight: number; amount: number }>);
