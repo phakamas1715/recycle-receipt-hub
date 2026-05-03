@@ -1,73 +1,93 @@
-# Welcome to your Lovable project
+# ♻️ Recycle Receipt Hub (ระบบจัดการร้านรับซื้อของเก่า)
 
-## Project info
+![Recycle Receipt Hub Banner](https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=1200&h=400)
 
-**URL**: https://lovable.dev/projects/853c0886-6c91-48e8-a871-6540489ce26e
+**Recycle Receipt Hub** คือระบบเว็บแอปพลิเคชัน (Web Application) สำหรับจัดการธุรกิจร้านรับซื้อของเก่าหรือศูนย์รีไซเคิล ช่วยให้การบันทึกการรับซื้อ ออกใบเสร็จ จัดการลูกค้า และตั้งค่าประเภทขยะรีไซเคิลเป็นไปอย่างเป็นระบบและง่ายดาย 
 
-## How can I edit this code?
+โดยระบบถูกออกแบบมาให้สามารถทำงานได้อย่างรวดเร็วแบบ Offline-First (เก็บข้อมูลบน LocalStorage ของเบราว์เซอร์) เพื่อความคล่องตัวในการทำงานหน้าร้านที่อาจมีข้อจำกัดเรื่องอินเทอร์เน็ต และเพื่อให้เจ้าของร้านมั่นใจได้ว่าข้อมูลจะไม่สูญหายและเป็นส่วนตัว
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## ✨ ฟีเจอร์หลัก (Key Features)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/853c0886-6c91-48e8-a871-6540489ce26e) and start prompting.
+*   📝 **บันทึกการรับซื้อ (Purchase Recording):** บันทึกการรับซื้อขยะรีไซเคิล ระบุประเภทขยะ น้ำหนัก ราคาต่อหน่วย พร้อมคำนวณยอดเงินรวมให้อัตโนมัติ
+*   🖨️ **พิมพ์ใบเสร็จรับเงิน (Receipt Printing):** ออกใบเสร็จการรับซื้อได้ทันที พร้อมรูปแบบที่ดูเป็นมืออาชีพ มีข้อมูลผู้ขายและรายการสินค้าครบถ้วน
+*   👥 **จัดการลูกค้า (Customer Management):** 
+    *   **ลูกค้าระดับองค์กร (Departments/Organizations):** จัดการลูกค้าแบบองค์กร โรงงาน หรือบริษัทที่นำขยะมาขายประจำ
+    *   **ลูกค้าบุคคลทั่วไป (Persons):** บันทึกประวัติบุคคลทั่วไปที่มาใช้บริการบ่อยๆ
+*   📦 **จัดการประเภทขยะ (Waste Type Management):** สามารถเพิ่ม ลบ และแก้ไขประเภทขยะรีไซเคิล รวมถึงกำหนดราคาเริ่มต้นและหน่วยวัด (กิโลกรัม, ชิ้น ฯลฯ) ได้เอง
+*   📊 **ดูประวัติย้อนหลังและสถิติ (History & Statistics):** เรียกดูประวัติการรับซื้อย้อนหลัง และดูสถิติภาพรวมเพื่อวิเคราะห์ยอดการรับซื้อ
+*   💾 **Local Data Storage:** ข้อมูลถูกจัดเก็บอย่างปลอดภัยบนเครื่องที่ใช้งาน ไม่ต้องกังวลเรื่องการเชื่อมต่ออินเทอร์เน็ตที่ขาดหาย
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+โปรเจกต์นี้พัฒนาขึ้นด้วยเทคโนโลยีล่าสุดในการทำเว็บแอปพลิเคชัน:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+*   **[React](https://reactjs.org/)** - UI Library สำหรับสร้างหน้าเว็บแบบ Interactive
+*   **[TypeScript](https://www.typescriptlang.org/)** - เพิ่ม Type Safety ให้กับ JavaScript เพื่อลดบั๊กระหว่างการพัฒนา
+*   **[Vite](https://vitejs.dev/)** - Build Tool ที่ทำงานได้รวดเร็วปานสายฟ้า
+*   **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework สำหรับจัดการความสวยงาม (Styling)
+*   **[shadcn/ui](https://ui.shadcn.com/)** - ชุด Component UI สำเร็จรูปที่สวยงามและปรับแต่งได้ง่าย
+*   **Lucide React** - ไอคอนเวกเตอร์ (SVG) สวยงามทันสมัย
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🚀 วิธีการติดตั้งและรันโปรเจกต์ (Installation & Running)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+หากคุณต้องการนำโปรเจกต์นี้ไปพัฒนาต่อหรือรันบนเครื่องของคุณเอง สามารถทำตามขั้นตอนต่อไปนี้:
 
-# Step 3: Install the necessary dependencies.
-npm i
+### ข้อกำหนดเบื้องต้น (Prerequisites)
+*   ต้องมี [Node.js](https://nodejs.org/) ติดตั้งอยู่ในเครื่อง (แนะนำเวอร์ชัน 18 ขึ้นไป)
+*   มี npm (มาพร้อมกับ Node.js)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### ขั้นตอนการรันระบบ (Steps)
 
-**Edit a file directly in GitHub**
+1. **โคลนโปรเจกต์ลงมาที่เครื่อง (Clone the repository)**
+   ```bash
+   git clone https://github.com/Phakamas1715/recycle-receipt-hub.git
+   cd recycle-receipt-hub
+   ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+2. **ติดตั้ง Dependencies**
+   ```bash
+   npm install
+   ```
 
-**Use GitHub Codespaces**
+3. **รันเซิร์ฟเวอร์จำลองสำหรับนักพัฒนา (Development Server)**
+   ```bash
+   npm run dev
+   ```
+   จากนั้นเปิดเบราว์เซอร์และเข้าไปที่ `http://localhost:8080` (หรือพอร์ตที่ Terminal แสดงขึ้นมา)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+4. **การ Build สำหรับใช้งานจริง (Production Build)**
+   ```bash
+   npm run build
+   ```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🔒 การจัดการข้อมูล (Data Storage Architecture)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+ในเวอร์ชันปัจจุบัน ระบบได้ถูกปรับแต่งให้เป็นแบบ **Offline-First Data Management** อย่างสมบูรณ์ 
+*   **Local Storage:** การกระทำทุกอย่าง (CRUD) ทั้งการทำรายการซื้อขาย, การเพิ่มลูกค้า และการปรับแต่งประเภทขยะ จะถูกบันทึกและดึงข้อมูลจาก `localStorage` ผ่านไลบรารีที่เขียนขึ้นเองใน `src/lib/dataStorage.ts` และ `src/lib/supabaseStorage.ts` (ซึ่งถูกจำลองมาครอบ Local Storage เอาไว้)
+*   ไม่ต้องพึ่งพาเซิร์ฟเวอร์ฐานข้อมูลภายนอก ทำให้ไม่ต้องกังวลปัญหา Database Timeout หรือ Limit API
+*   *หมายเหตุ:* หากลบข้อมูลแคชในเบราว์เซอร์ ข้อมูลอาจสูญหาย แนะนำให้ใช้ฟีเจอร์ Export Data เป็นระยะ
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/853c0886-6c91-48e8-a871-6540489ce26e) and click on Share -> Publish.
+## 🤝 การมีส่วนร่วม (Contributing)
 
-## Can I connect a custom domain to my Lovable project?
+หากคุณพบปัญหาหรือมีไอเดียในการพัฒนาฟีเจอร์ใหม่ๆ ยินดีต้อนรับ!
+1. Fork โปรเจกต์นี้
+2. สร้าง Branch สำหรับฟีเจอร์ของคุณ (`git checkout -b feature/AmazingFeature`)
+3. Commit การเปลี่ยนแปลง (`git commit -m 'Add some AmazingFeature'`)
+4. Push โค้ดขึ้นไป (`git push origin feature/AmazingFeature`)
+5. เปิด Pull Request
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📄 ลิขสิทธิ์ (License)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+โปรเจกต์นี้เป็น Open Source สามารถนำไปใช้งาน หรือดัดแปลงต่อยอดเพื่อประโยชน์ส่วนตัวหรือทางธุรกิจได้ฟรี
