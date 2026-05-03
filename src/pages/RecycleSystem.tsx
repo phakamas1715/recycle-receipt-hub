@@ -16,8 +16,13 @@ const RecycleSystem = () => {
   const [activeTab, setActiveTab] = useState("purchase");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      {/* Header */}
+    <div className="min-h-screen relative bg-fixed bg-center bg-cover" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80')" }}>
+      {/* Glassmorphism Overlay */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0"></div>
+      
+      {/* Content wrapper */}
+      <div className="relative z-10 min-h-screen">
+        {/* Header */}
       <header className="bg-card border-b shadow-sm">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
@@ -159,6 +164,7 @@ const RecycleSystem = () => {
           </TabsContent>
         </Tabs>
       </main>
+      </div>
     </div>
   );
 };
