@@ -100,7 +100,7 @@ class SupabaseStorage {
         total_amount: t.totalAmount,
         created_at: t.createdAt,
         updated_at: t.updatedAt,
-        items: t.items.map(item => ({
+        items: (t.items || []).map(item => ({
           waste_type_id: item.wasteTypeId,
           waste_type_name: item.wasteTypeName,
           weight: item.weight,
@@ -173,16 +173,24 @@ class SupabaseStorage {
 
   async updateWasteType(id: string, updates: Partial<WasteType>): Promise<boolean> {
     try {
-      return dataStorage.updateWasteType(id, {
-        name: updates.name,
-        price: updates.price,
-        unit: updates.unit,
-        category: updates.category,
-        description: updates.description,
-        greenStandard: updates.green_standard,
-        hazardLevel: updates.hazard_level,
-        isActive: updates.is_active
-      });
+      const allWasteTypes = dataStorage.getWasteTypes();
+      const existing = allWasteTypes.find(w => w.id === id);
+      if (!existing) return false;
+
+      const merged = {
+        ...existing,
+        name: updates.name !== undefined ? updates.name : existing.name,
+        price: updates.price !== undefined ? updates.price : existing.price,
+        unit: updates.unit !== undefined ? updates.unit : existing.unit,
+        category: updates.category !== undefined ? updates.category : existing.category,
+        description: updates.description !== undefined ? updates.description : existing.description,
+        greenStandard: updates.green_standard !== undefined ? updates.green_standard : existing.greenStandard,
+        hazardLevel: updates.hazard_level !== undefined ? updates.hazard_level : existing.hazardLevel,
+        isActive: updates.is_active !== undefined ? updates.is_active : existing.isActive
+      };
+
+      dataStorage.updateWasteType(id, merged);
+      return true;
     } catch (error) {
       console.error("Error updating waste type:", error);
       return false;
