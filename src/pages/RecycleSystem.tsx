@@ -38,7 +38,7 @@ const RecycleSystem = () => {
                 {/* Responsive subtitle */}
                 <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground flex items-center gap-1 sm:gap-2 mt-1">
                   <Building2 className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
-                  <span className="truncate">ร้านรับซื้อของเก่า รักษ์โลก</span>
+                  <span className="truncate">โรงงานรีไซเคิล Eco-Cycle Hub</span>
                 </p>
               </div>
             </div>
