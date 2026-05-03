@@ -16,10 +16,7 @@ const RecycleSystem = () => {
   const [activeTab, setActiveTab] = useState("purchase");
 
   return (
-    <div className="min-h-screen relative bg-fixed bg-center bg-cover" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80')" }}>
-      {/* Glassmorphism Overlay */}
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0"></div>
-      
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Content wrapper */}
       <div className="relative z-10 min-h-screen">
         {/* Header */}
