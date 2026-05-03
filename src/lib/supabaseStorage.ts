@@ -1,7 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
+// This file has been updated to use localStorage instead of Supabase 
+// to bypass the "Supabase project is paused" error and keep the app completely offline/local.
 
-// Type casting for our custom tables that aren't in the generated types yet
-type SupabaseClient = typeof supabase;
+import { dataStorage } from "./dataStorage";
 
 export interface TransactionItem {
   waste_type_id: string;
@@ -53,50 +53,31 @@ class SupabaseStorage {
   // Transaction Management
   async saveTransaction(transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction | null> {
     try {
-      console.log("Saving transaction:", transaction);
+      // Map to dataStorage format
+      const localTransaction = {
+        receiptNumber: transaction.receipt_number,
+        date: transaction.date,
+        time: transaction.time,
+        sellerType: transaction.seller_type,
+        seller: transaction.seller,
+        totalWeight: transaction.total_weight,
+        totalAmount: transaction.total_amount,
+        items: transaction.items.map(item => ({
+          wasteTypeId: item.waste_type_id,
+          wasteTypeName: item.waste_type_name,
+          weight: item.weight,
+          pricePerUnit: item.price_per_unit,
+          amount: item.amount
+        }))
+      };
+
+      const saved = dataStorage.saveTransaction(localTransaction);
       
-      // Save main transaction
-      const { data: transactionData, error: transactionError } = await (supabase as any)
-        .from('transactions')
-        .insert({
-          receipt_number: transaction.receipt_number,
-          date: transaction.date,
-          time: transaction.time,
-          seller_type: transaction.seller_type,
-          seller: transaction.seller,
-          total_weight: transaction.total_weight,
-          total_amount: transaction.total_amount
-        })
-        .select()
-        .single();
-
-      if (transactionError) {
-        console.error("Transaction save error:", transactionError);
-        throw transactionError;
-      }
-
-      // Save transaction items
-      const itemsToInsert = transaction.items.map(item => ({
-        transaction_id: transactionData.id,
-        waste_type_id: item.waste_type_id,
-        waste_type_name: item.waste_type_name,
-        weight: item.weight,
-        price_per_unit: item.price_per_unit,
-        amount: item.amount
-      }));
-
-      const { error: itemsError } = await (supabase as any)
-        .from('transaction_items')
-        .insert(itemsToInsert);
-
-      if (itemsError) {
-        console.error("Transaction items save error:", itemsError);
-        throw itemsError;
-      }
-
       return {
-        ...transactionData,
-        items: transaction.items
+        ...transaction,
+        id: saved.id,
+        created_at: saved.createdAt,
+        updated_at: saved.updatedAt
       };
     } catch (error) {
       console.error("Error saving transaction:", error);
@@ -106,44 +87,27 @@ class SupabaseStorage {
 
   async getTransactions(): Promise<Transaction[]> {
     try {
-      const { data: transactions, error } = await (supabase as any)
-        .from('transactions')
-        .select(`
-          *,
-          transaction_items (
-            waste_type_id,
-            waste_type_name,
-            weight,
-            price_per_unit,
-            amount
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error loading transactions:", error);
-        return [];
-      }
-
-      return transactions?.map(transaction => ({
-        id: transaction.id,
-        receipt_number: transaction.receipt_number,
-        date: transaction.date,
-        time: transaction.time,
-        seller_type: transaction.seller_type,
-        seller: transaction.seller,
-        items: transaction.transaction_items?.map((item: any) => ({
-          waste_type_id: item.waste_type_id,
-          waste_type_name: item.waste_type_name,
+      const localData = dataStorage.getTransactions();
+      
+      return localData.map(t => ({
+        id: t.id,
+        receipt_number: t.receiptNumber,
+        date: t.date,
+        time: t.time,
+        seller_type: t.sellerType,
+        seller: t.seller,
+        total_weight: t.totalWeight,
+        total_amount: t.totalAmount,
+        created_at: t.createdAt,
+        updated_at: t.updatedAt,
+        items: t.items.map(item => ({
+          waste_type_id: item.wasteTypeId,
+          waste_type_name: item.wasteTypeName,
           weight: item.weight,
-          price_per_unit: item.price_per_unit,
+          price_per_unit: item.pricePerUnit,
           amount: item.amount
-        })) || [],
-        total_weight: transaction.total_weight,
-        total_amount: transaction.total_amount,
-        created_at: transaction.created_at,
-        updated_at: transaction.updated_at
-      })) || [];
+        }))
+      }));
     } catch (error) {
       console.error("Error loading transactions:", error);
       return [];
@@ -152,24 +116,7 @@ class SupabaseStorage {
 
   async deleteTransaction(id: string): Promise<boolean> {
     try {
-      // Delete transaction items first
-      await (supabase as any)
-        .from('transaction_items')
-        .delete()
-        .eq('transaction_id', id);
-
-      // Delete transaction
-      const { error } = await (supabase as any)
-        .from('transactions')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error("Error deleting transaction:", error);
-        return false;
-      }
-
-      return true;
+      return dataStorage.deleteTransaction(id);
     } catch (error) {
       console.error("Error deleting transaction:", error);
       return false;
@@ -179,18 +126,20 @@ class SupabaseStorage {
   // Waste Type Management
   async getWasteTypes(): Promise<WasteType[]> {
     try {
-      const { data, error } = await (supabase as any)
-        .from('waste_types')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) {
-        console.error("Error loading waste types:", error);
-        return [];
-      }
-
-      return data || [];
+      const localData = dataStorage.getWasteTypes();
+      return localData.map(w => ({
+        id: w.id,
+        name: w.name,
+        price: w.price,
+        unit: w.unit,
+        category: w.category,
+        description: w.description,
+        green_standard: w.greenStandard,
+        hazard_level: w.hazardLevel,
+        is_active: w.isActive,
+        created_at: w.createdAt,
+        updated_at: w.updatedAt
+      }));
     } catch (error) {
       console.error("Error loading waste types:", error);
       return [];
@@ -199,18 +148,23 @@ class SupabaseStorage {
 
   async saveWasteType(wasteType: Omit<WasteType, 'id' | 'created_at' | 'updated_at'>): Promise<WasteType | null> {
     try {
-      const { data, error } = await (supabase as any)
-        .from('waste_types')
-        .insert(wasteType)
-        .select()
-        .single();
+      const saved = dataStorage.saveWasteType({
+        name: wasteType.name,
+        price: wasteType.price,
+        unit: wasteType.unit,
+        category: wasteType.category,
+        description: wasteType.description,
+        greenStandard: wasteType.green_standard,
+        hazardLevel: wasteType.hazard_level,
+        isActive: wasteType.is_active
+      });
 
-      if (error) {
-        console.error("Error saving waste type:", error);
-        return null;
-      }
-
-      return data;
+      return {
+        ...wasteType,
+        id: saved.id,
+        created_at: saved.createdAt,
+        updated_at: saved.updatedAt
+      };
     } catch (error) {
       console.error("Error saving waste type:", error);
       return null;
@@ -219,17 +173,16 @@ class SupabaseStorage {
 
   async updateWasteType(id: string, updates: Partial<WasteType>): Promise<boolean> {
     try {
-      const { error } = await (supabase as any)
-        .from('waste_types')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) {
-        console.error("Error updating waste type:", error);
-        return false;
-      }
-
-      return true;
+      return dataStorage.updateWasteType(id, {
+        name: updates.name,
+        price: updates.price,
+        unit: updates.unit,
+        category: updates.category,
+        description: updates.description,
+        greenStandard: updates.green_standard,
+        hazardLevel: updates.hazard_level,
+        isActive: updates.is_active
+      });
     } catch (error) {
       console.error("Error updating waste type:", error);
       return false;
@@ -238,17 +191,7 @@ class SupabaseStorage {
 
   async deleteWasteType(id: string): Promise<boolean> {
     try {
-      const { error } = await (supabase as any)
-        .from('waste_types')
-        .update({ is_active: false })
-        .eq('id', id);
-
-      if (error) {
-        console.error("Error deleting waste type:", error);
-        return false;
-      }
-
-      return true;
+      return dataStorage.deleteWasteType(id);
     } catch (error) {
       console.error("Error deleting waste type:", error);
       return false;
@@ -258,18 +201,16 @@ class SupabaseStorage {
   // Person Management
   async getPersons(): Promise<Person[]> {
     try {
-      const { data, error } = await (supabase as any)
-        .from('persons')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) {
-        console.error("Error loading persons:", error);
-        return [];
-      }
-
-      return data || [];
+      const localData = dataStorage.getPersons();
+      return localData.map(p => ({
+        id: p.id,
+        name: p.name,
+        phone: p.phone,
+        address: p.address,
+        is_active: p.isActive,
+        created_at: p.createdAt,
+        updated_at: p.updatedAt
+      }));
     } catch (error) {
       console.error("Error loading persons:", error);
       return [];
@@ -278,18 +219,19 @@ class SupabaseStorage {
 
   async savePerson(person: Omit<Person, 'id' | 'created_at' | 'updated_at'>): Promise<Person | null> {
     try {
-      const { data, error } = await (supabase as any)
-        .from('persons')
-        .insert(person)
-        .select()
-        .single();
+      const saved = dataStorage.addPerson({
+        name: person.name,
+        phone: person.phone,
+        address: person.address,
+        isActive: person.is_active
+      });
 
-      if (error) {
-        console.error("Error saving person:", error);
-        return null;
-      }
-
-      return data;
+      return {
+        ...person,
+        id: saved.id,
+        created_at: saved.createdAt,
+        updated_at: saved.updatedAt
+      };
     } catch (error) {
       console.error("Error saving person:", error);
       return null;
