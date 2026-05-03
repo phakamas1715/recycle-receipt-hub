@@ -155,7 +155,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
         <Card ref={ref} data-receipt className="w-full max-w-lg mx-auto bg-white text-black print:shadow-none print:border-none">
           <CardHeader className="text-center space-y-2 pb-4">
             <CardTitle className="text-2xl font-bold text-primary">
-              โรงพยาบาลน้ำพอง
+              ร้านรับซื้อของเก่า รักษ์โลก
             </CardTitle>
             <div className="text-lg font-semibold">ใบเสร็จรับซื้อขยะรีไซเคิล</div>
             <div className="text-sm text-muted-foreground">
@@ -183,7 +183,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
               <div className="text-sm text-muted-foreground">ผู้ขาย:</div>
               <div className="font-medium text-lg">{receiptData.seller}</div>
               <div className="text-sm text-muted-foreground">
-                ({receiptData.sellerType === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป'})
+                ({receiptData.sellerType === 'department' ? 'ลูกค้าสมาชิก/องค์กร' : 'บุคคลทั่วไป'})
               </div>
             </div>
 
@@ -259,7 +259,7 @@ const ReceiptView = forwardRef<HTMLDivElement, ReceiptViewProps>(
             <div className="text-xs text-center text-muted-foreground pt-4 border-t">
               ขอบคุณที่ร่วมมือในการรีไซเคิล
               <br />
-              เพื่อสิ่งแวดล้อมที่ดีของโรงพยาบาลน้ำพอง
+              เพื่อสิ่งแวดล้อมที่ดีและโลกที่ยั่งยืน
             </div>
           </CardContent>
         </Card>

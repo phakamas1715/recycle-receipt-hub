@@ -29,7 +29,7 @@ export class ExportUtils {
             }
           })() : '',
           'เวลา': itemIndex === 0 ? t.time : '',
-          'ประเภทผู้ขาย': itemIndex === 0 ? (t.seller_type === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
+          'ประเภทผู้ขาย': itemIndex === 0 ? (t.seller_type === 'department' ? 'ลูกค้าสมาชิก/องค์กร' : 'บุคคลทั่วไป') : '',
           'ผู้ขาย': itemIndex === 0 ? t.seller : '',
           'ประเภทขยะ': item.waste_type_name,
           'น้ำหนัก (กก.)': item.weight,
@@ -97,7 +97,7 @@ export class ExportUtils {
             }
           })() : '',
           'เวลา': itemIndex === 0 ? t.time : '',
-          'ประเภทผู้ขาย': itemIndex === 0 ? (t.seller_type === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป') : '',
+          'ประเภทผู้ขาย': itemIndex === 0 ? (t.seller_type === 'department' ? 'ลูกค้าสมาชิก/องค์กร' : 'บุคคลทั่วไป') : '',
           'ผู้ขาย': itemIndex === 0 ? t.seller : '',
           'ประเภทขยะ': item.waste_type_name,
           'น้ำหนัก (กก.)': item.weight,
@@ -144,7 +144,7 @@ export class ExportUtils {
       
       // Header
       pdf.text('รายงานสรุปการรับซื้อขยะรีไซเคิล', 105, 20, { align: 'center' });
-      pdf.text('โรงพยาบาลน้ำพอง', 105, 30, { align: 'center' });
+      pdf.text('ร้านรับซื้อของเก่า รักษ์โลก', 105, 30, { align: 'center' });
       
       if (dateRange) {
         pdf.setFontSize(12);
@@ -287,7 +287,7 @@ export class ExportUtils {
     return Object.entries(analysis).map(([seller, data], index) => ({
       'ลำดับ': index + 1,
       'ผู้ขาย': seller,
-      'ประเภท': data.type === 'department' ? 'แผนกในโรงพยาบาล' : 'บุคคลทั่วไป',
+      'ประเภท': data.type === 'department' ? 'ลูกค้าสมาชิก/องค์กร' : 'บุคคลทั่วไป',
       'จำนวนรายการ': data.count,
       'น้ำหนักรวม (กก.)': data.weight.toFixed(2),
       'ยอดรวม (บาท)': data.amount.toFixed(2),

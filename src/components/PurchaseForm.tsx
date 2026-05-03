@@ -54,54 +54,11 @@ const PurchaseForm = () => {
   }, []);
 
   const departments: Department[] = [
-    { id: "1", name: "NSO - บริหารกลุ่มการพยาบาล" },
-    { id: "2", name: "ER - งานการพยาบาลผู้ป่วยอุบัติเหตุฉุกเฉินและนิติเวช" },
-    { id: "3", name: "OR - งานการพยาบาลผู้ป่วยผ่าตัดและวิสัญญีพยาบาล" },
-    { id: "4", name: "LR - งานการพยาบาลผู้คลอด" },
-    { id: "5", name: "งานการพยาบาลโรคไต" },
-    { id: "6", name: "WARD1 - งานการพยาบาลผู้ป่วยใน ชาย" },
-    { id: "7", name: "WARD3 - งานการพยาบาลผู้ป่วยใน เด็ก" },
-    { id: "8", name: "WARD2 - งานการพยาบาลผู้ป่วยใน หญิง" },
-    { id: "9", name: "OPD - งานการพยาบาลผู้ป่วยนอก" },
-    { id: "10", name: "PSY - จิตเวชและยาเสพติด" },
-    { id: "11", name: "งานเคลื่อนย้ายผู้ป่วย" },
-    { id: "12", name: "CSU - งานการพยาบาลหน่วยควบคุมการติดเชื้อและงานจ่ายกลาง" },
-    { id: "13", name: "MNU - งานโภชนศาสตร์" },
-    { id: "14", name: "MAN - ฝ่ายบริหารงานทั่วไป" },
-    { id: "15", name: "MON - งานการเงิน" },
-    { id: "16", name: "ART - งานพัสดุ" },
-    { id: "17", name: "BOO - งานธุรการ" },
-    { id: "18", name: "AMB - งานยานพาหนะ" },
-    { id: "19", name: "GAR - งานภูมิทัศน์" },
-    { id: "20", name: "CLC - งานซักฟอก" },
-    { id: "21", name: "SEC - งานรักษาความปลอดภัย" },
-    { id: "22", name: "CLE - งานทำความสะอาด" },
-    { id: "23", name: "MED - งานเวชปฏิบัติทั่วไป" },
-    { id: "24", name: "XRA - งานรังสีวิทยา" },
-    { id: "25", name: "LAB - งานเทคนิคการแพทย์" },
-    { id: "26", name: "TTM - งานแพทย์แผนไทย" },
-    { id: "27", name: "PLA - แผนงานและประเมินผล" },
-    { id: "28", name: "COM - งานศูนย์คอมพิวเตอร์" },
-    { id: "29", name: "HAC - งานศูนย์ประกันสุขภาพ" },
-    { id: "30", name: "MRD - งานเวชระเบียน" },
-    { id: "31", name: "FMC - กลุ่มงานบริการด้านปฐมภูมิและองค์รวม" },
-    { id: "32", name: "PHA - ฝ่ายเภสัชกรรมชุมชน" },
-    { id: "33", name: "RHD - ฝ่ายเวชกรรมฟื้นฟู" },
-    { id: "34", name: "FUN - งานทันตกรรม" },
-    { id: "35", name: "HED - งานสุขศึกษาและประชาสัมพันธ์" },
-    { id: "36", name: "PO - การแพทย์" },
-    { id: "37", name: "NCD - งานการพยาบาลผู้ป่วยโรคไม่ติดต่อเรื้อรัง" },
-    { id: "38", name: "TEC - งานซ่อมบำรุง" },
-    { id: "39", name: "ES - งานสุขาภิบาล" },
-    { id: "40", name: "EYE - งานการพยาบาลผู้ป่วยจักษุ" },
-    { id: "41", name: "WARD4 - งานการพยาบาลผู้ป่วยใน พิเศษ" },
-    { id: "42", name: "PC - งานพยาบาลการดูแลผู้ป่วยระยะท้ายแบบประคับประคอง" },
-    { id: "43", name: "Boss - หัวหน้างาน" },
-    { id: "44", name: "ICU - งานผู่ป่วยหนัก" },
-    { id: "45", name: "MDC - ศูนย์ซ่อมเครื่องมือแพทย์" },
-    { id: "46", name: "PHA IPD - ฝ่ายเภสัชกรรมชุมชน ผู้ป่วยใน" },
-    { id: "47", name: "PHA OPD - ฝ่ายเภสัชกรรมชุมชน ผู้ป่วยนอก" },
-    { id: "48", name: "PHA NCD - ฝ่ายเภสัชกรรมชุมชน ผู้ป่วยไม่ติดต่อเรื้อรัง" },
+    { id: "1", name: "บริษัท เอบีซี จำกัด" },
+    { id: "2", name: "ชุมชนบ้านพัฒนา" },
+    { id: "3", name: "โรงเรียนรักษ์โลก" },
+    { id: "4", name: "ร้านค้า/มินิมาร์ท" },
+    { id: "5", name: "ลูกค้าสมาชิก VIP" },
   ];
 
   const persons: Person[] = [
@@ -307,7 +264,7 @@ const PurchaseForm = () => {
           <body>
             <div class="receipt-container">
               <div class="receipt-header">
-                <div class="hospital-name">โรงพยาบาลตัวอย่าง</div>
+                <div class="hospital-name">ร้านรับซื้อของเก่า รักษ์โลก</div>
                 <div class="receipt-title">ใบเสร็จรับเงิน</div>
                 <div class="receipt-info">เลขที่: ${lastTransaction.receipt_number}</div>
                 <div class="receipt-info">วันที่: ${lastTransaction.date} ${lastTransaction.time}</div>
@@ -500,7 +457,7 @@ const PurchaseForm = () => {
               <div className="flex flex-col items-center text-center space-y-4">
                 <div className="flex items-center gap-3">
                   <Building className="h-8 w-8 text-primary" />
-                  <CardTitle className="text-2xl font-bold">แผนกในโรงพยาบาล</CardTitle>
+                  <CardTitle className="text-2xl font-bold">ลูกค้าสมาชิก/องค์กร</CardTitle>
                 </div>
                 <Button
                   type="button"
@@ -509,7 +466,7 @@ const PurchaseForm = () => {
                   className="w-full h-16 text-xl font-bold"
                   onClick={() => setSellerType("department")}
                 >
-                  {sellerType === "department" ? "✓ เลือกแล้ว" : "เลือกแผนก"}
+                  {sellerType === "department" ? "✓ เลือกแล้ว" : "เลือกลูกค้าสมาชิก"}
                 </Button>
               </div>
             </CardHeader>
@@ -520,14 +477,14 @@ const PurchaseForm = () => {
                 disabled={sellerType !== "department"}
               >
                 <SelectTrigger className="h-16 text-xl font-medium">
-                  <SelectValue placeholder="👆 เลือกแผนกของคุณ" />
+                  <SelectValue placeholder="👆 เลือกลูกค้าสมาชิก/องค์กร" />
                 </SelectTrigger>
                 <SelectContent className="max-h-80">
                   <div className="sticky top-0 z-10 bg-background p-2">
                     <div className="relative">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="ค้นหาแผนก..."
+                        placeholder="ค้นหาลูกค้าสมาชิก..."
                         className="pl-8"
                         value={departmentSearch}
                         onChange={(e) => setDepartmentSearch(e.target.value)}
@@ -541,7 +498,7 @@ const PurchaseForm = () => {
                   ))}
                   {filteredDepartments.length === 0 && (
                     <div className="text-center py-4 text-muted-foreground">
-                      ไม่พบแผนกที่ค้นหา
+                      ไม่พบข้อมูลลูกค้าสมาชิก
                     </div>
                   )}
                 </SelectContent>

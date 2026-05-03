@@ -44,18 +44,16 @@ const WasteTypeManager = () => {
     hazardLevel: "ต่ำ"
   });
 
-  // Green & Clean Hospital Standard Categories
+  // General Recycling Categories
   const wasteCategories = [
-    "ขยะติดเชื้อ",
-    "ขยะอันตราย",
     "ขยะรีไซเคิล - กระดาษ",
     "ขยะรีไซเคิล - พลาสติก",
     "ขยะรีไซเคิล - โลหะ",
     "ขยะรีไซเคิล - แก้ว",
-    "ขยะอินทรีย์",
+    "ขยะรีไซเคิล - อิเล็กทรอนิกส์",
+    "ขยะอันตราย",
     "ขยะทั่วไป",
-    "วัสดุอุปกรณ์การแพทย์",
-    "เครื่องมือแพทย์"
+    "อื่นๆ"
   ];
 
   useEffect(() => {
@@ -65,7 +63,7 @@ const WasteTypeManager = () => {
   const loadWasteTypes = () => {
     const stored = dataStorage.getWasteTypes();
     if (stored.length === 0) {
-      // Default waste types following Green & Clean Hospital standards
+      // Default waste types following general recycling shop standards
       const defaultWasteTypes: WasteType[] = [
         { id: "1", name: "กระดาษ A4/หนังสือพิมพ์", price: 3.5, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - กระดาษ", greenStandard: true, hazardLevel: "ต่ำ" },
         { id: "2", name: "พลาสติก PET ขวดน้ำ", price: 12, unit: "กิโลกรัม", category: "ขยะรีไซเคิล - พลาสติก", greenStandard: true, hazardLevel: "ต่ำ" },
@@ -210,7 +208,7 @@ const WasteTypeManager = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">จัดการประเภทขยะรีไซเคิล</h2>
-          <p className="text-muted-foreground">เพิ่ม แก้ไข หรือลบประเภทขยะตามมาตรฐาน Green & Clean Hospital</p>
+          <p className="text-muted-foreground">เพิ่ม แก้ไข หรือลบประเภทขยะสำหรับร้านรับซื้อของเก่า</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -226,7 +224,7 @@ const WasteTypeManager = () => {
                 {editingWaste ? "แก้ไขประเภทขยะ" : "เพิ่มประเภทขยะใหม่"}
               </DialogTitle>
               <DialogDescription>
-                กรอกข้อมูลประเภทขยะตามมาตรฐาน Green & Clean Hospital
+                กรอกข้อมูลประเภทขยะสำหรับร้านรับซื้อของเก่า
               </DialogDescription>
             </DialogHeader>
             
@@ -314,7 +312,7 @@ const WasteTypeManager = () => {
                     onChange={(e) => setFormData({...formData, greenStandard: e.target.checked})}
                     className="rounded"
                   />
-                  <Label htmlFor="greenStandard">ผ่านมาตรฐาน Green & Clean Hospital</Label>
+                  <Label htmlFor="greenStandard">เป็นขยะยอดนิยม/มีมาตรฐานการรีไซเคิล</Label>
                 </div>
               </div>
 

@@ -254,8 +254,8 @@ const Dashboard = () => {
         {/* Top Departments */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl md:text-2xl">แผนกที่มียอดสูงสุด</CardTitle> {/* Increased font size */}
-            <CardDescription className="text-base md:text-lg">5 แผนกที่มีปริมาณการขายมากที่สุด</CardDescription> {/* Increased font size */}
+            <CardTitle className="text-xl md:text-2xl">ลูกค้าที่มียอดสูงสุด</CardTitle> {/* Increased font size */}
+            <CardDescription className="text-base md:text-lg">5 กลุ่มลูกค้าที่มีปริมาณการขายมากที่สุด</CardDescription> {/* Increased font size */}
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -384,7 +384,7 @@ const Dashboard = () => {
             </div>
             
             <div className="space-y-3"> {/* Increased space-y */}
-              <h4 className="font-medium text-lg md:text-xl">แผนกที่มีส่วนร่วมสูง</h4> {/* Increased font size */}
+              <h4 className="font-medium text-lg md:text-xl">กลุ่มลูกค้าที่มีส่วนร่วมสูง</h4> {/* Increased font size */}
               <div className="space-y-2"> {/* Increased space-y */}
                 {dashboardData.topDepartments.slice(0, 3).map((dept, index) => (
                   <div key={index} className="flex justify-between text-base md:text-lg"> {/* Increased font size */}

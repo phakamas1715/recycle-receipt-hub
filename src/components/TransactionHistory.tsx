@@ -299,7 +299,7 @@ const TransactionHistory = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="department">แผนกในโรงพยาบาล</SelectItem>
+                  <SelectItem value="department">ลูกค้าสมาชิก/องค์กร</SelectItem>
                   <SelectItem value="person">บุคคลทั่วไป</SelectItem>
                 </SelectContent>
               </Select>
@@ -396,7 +396,7 @@ const TransactionHistory = () => {
                         <div className="flex flex-col">
                           <span className="font-medium">{transaction.seller}</span>
                           <Badge variant={transaction.seller_type === "department" ? "default" : "secondary"} className="w-fit text-xs">
-                            {transaction.seller_type === "department" ? "แผนก" : "บุคคลทั่วไป"}
+                            {transaction.seller_type === "department" ? "สมาชิก/องค์กร" : "บุคคลทั่วไป"}
                           </Badge>
                         </div>
                       </TableCell>

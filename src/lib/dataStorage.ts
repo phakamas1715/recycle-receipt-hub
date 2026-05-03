@@ -223,12 +223,12 @@ class DataStorage {
       if (!data) {
         // Initialize with default departments
         const defaultDepartments: Department[] = [
-          { id: "1", name: "NSO - บริหารกลุ่มการพยาบาล", code: "NSO", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "2", name: "ER - งานการพยาบาลผู้ป่วยอุบัติเหตุฉุกเฉินและนิติเวช", code: "ER", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "3", name: "OR - งานการพยาบาลผู้ป่วยผ่าตัดและวิสัญญีพยาบาล", code: "OR", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "4", name: "LR - งานการพยาบาลผู้คลอด", code: "LR", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          { id: "5", name: "งานการพยาบาลโรคไต", code: "KID", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-          // ... all 48 departments from your original list
+          { id: "1", name: "บริษัท เอบีซี จำกัด", code: "ORG1", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "2", name: "ชุมชนบ้านพัฒนา", code: "COM1", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "3", name: "โรงเรียนรักษ์โลก", code: "EDU1", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "4", name: "ร้านค้า/มินิมาร์ท", code: "SHOP1", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: "5", name: "ลูกค้าสมาชิก VIP", code: "VIP1", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          // ... สามารถเพิ่มกลุ่มลูกค้าเพิ่มเติมได้ที่นี่
         ];
         this.saveDepartments(defaultDepartments);
         return defaultDepartments;
@@ -242,6 +242,47 @@ class DataStorage {
 
   saveDepartments(departments: Department[]): void {
     localStorage.setItem(this.STORAGE_KEYS.DEPARTMENTS, JSON.stringify(departments));
+  }
+
+  addDepartment(department: Omit<Department, 'id' | 'createdAt' | 'updatedAt'>): Department {
+    const departments = this.getDepartments();
+    const newDepartment: Department = {
+      ...department,
+      id: `DEPT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    departments.push(newDepartment);
+    this.saveDepartments(departments);
+    return newDepartment;
+  }
+
+  updateDepartment(id: string, department: Department): Department {
+    const departments = this.getDepartments();
+    const index = departments.findIndex(d => d.id === id);
+    
+    if (index >= 0) {
+      departments[index] = {
+        ...department,
+        updatedAt: new Date().toISOString()
+      };
+      this.saveDepartments(departments);
+    }
+    
+    return department;
+  }
+
+  deleteDepartment(id: string): boolean {
+    const departments = this.getDepartments();
+    const filteredDepartments = departments.filter(d => d.id !== id);
+    
+    if (filteredDepartments.length !== departments.length) {
+      this.saveDepartments(filteredDepartments);
+      return true;
+    }
+    
+    return false;
   }
 
   // Persons Management
@@ -271,6 +312,33 @@ class DataStorage {
     persons.push(newPerson);
     this.savePersons(persons);
     return newPerson;
+  }
+
+  updatePerson(id: string, person: Person): Person {
+    const persons = this.getPersons();
+    const index = persons.findIndex(p => p.id === id);
+    
+    if (index >= 0) {
+      persons[index] = {
+        ...person,
+        updatedAt: new Date().toISOString()
+      };
+      this.savePersons(persons);
+    }
+    
+    return person;
+  }
+
+  deletePerson(id: string): boolean {
+    const persons = this.getPersons();
+    const filteredPersons = persons.filter(p => p.id !== id);
+    
+    if (filteredPersons.length !== persons.length) {
+      this.savePersons(filteredPersons);
+      return true;
+    }
+    
+    return false;
   }
 
   // Settings Management

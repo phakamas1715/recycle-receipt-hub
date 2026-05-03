@@ -116,7 +116,7 @@ const DepartmentDashboard = () => {
         ...data
       }));
 
-    // Calculate Green Score (ตามมาตรฐาน Green & Clean Hospital)
+    // Calculate Green Score (คะแนนการรีไซเคิล)
     const wasteTypes = dataStorage.getWasteTypes();
     const greenTransactions = departmentTransactions.filter(t => {
       return t.items.some(item => {
@@ -233,10 +233,10 @@ const DepartmentDashboard = () => {
         <div>
           <h2 className="text-3xl font-bold flex items-center gap-3">
             <Building2 className="h-8 w-8 text-primary" />
-            แดชบอร์ดข้อมูลแผนก
+            แดชบอร์ดข้อมูลลูกค้าสมาชิก
           </h2>
           <p className="text-lg text-muted-foreground mt-2">
-            ติดตามและประเมินผลการจัดการขยะรีไซเคิลตามมาตรฐาน Green & Clean Hospital
+            ติดตามและประเมินผลการจัดการขยะรีไซเคิลของลูกค้าสมาชิก
           </p>
         </div>
         
@@ -251,12 +251,12 @@ const DepartmentDashboard = () => {
       {/* Department Selection */}
       <Card>
         <CardHeader>
-          <CardTitle>เลือกแผนกเพื่อดูรายละเอียด</CardTitle>
+          <CardTitle>เลือกลูกค้าสมาชิกเพื่อดูรายละเอียด</CardTitle>
         </CardHeader>
         <CardContent>
           <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
             <SelectTrigger className="max-w-md">
-              <SelectValue placeholder="เลือกแผนก" />
+              <SelectValue placeholder="เลือกลูกค้าสมาชิก" />
             </SelectTrigger>
             <SelectContent>
               {departments.map((dept) => (
@@ -275,7 +275,7 @@ const DepartmentDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>ข้อมูลแผนก: {departmentStats.departmentName}</span>
+                <span>ข้อมูลลูกค้าสมาชิก: {departmentStats.departmentName}</span>
                 <Badge className={`text-lg px-4 py-2 ${getGreenScoreColor(departmentStats.greenScore)}`}>
                   คะแนนสิ่งแวดล้อม: {departmentStats.greenScore}% ({getGreenScoreLabel(departmentStats.greenScore)})
                 </Badge>
@@ -356,12 +356,12 @@ const DepartmentDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>ภาพรวมทุกแผนก</span>
+            <span>ภาพรวมลูกค้าสมาชิกทั้งหมด</span>
             <div className="flex gap-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="ค้นหาแผนก..."
+                  placeholder="ค้นหาลูกค้าสมาชิก..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-64"
